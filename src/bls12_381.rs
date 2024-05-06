@@ -6,7 +6,7 @@ use lambdaworks_math::elliptic_curve::traits::IsEllipticCurve;
 /// > Provide link to repo
 pub fn chal_pubkey() {
     let gen = BLS12381Curve::generator();
-    let privkey = 0x6C616D6264617370u64;
+    let privkey = 0x6C616D6264617370u64; // lambdasp
     let pubkey = gen.operate_with_self(privkey).to_affine();
     println!("Public key: ({}, {})\n", pubkey.x(), pubkey.y());
 }
