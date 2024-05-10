@@ -22,7 +22,7 @@ Based on the table under the README of Lambdaworks, it currently supports Groth1
 
 > Give the multiplicative inverse of 2 modulo $2^{64} - 2^{32} + 1$ (the so-called mini-Goldilocks prime)
 
-It is `9223372034707292161`. See <https://github.com/erhant/lambda-0b10/blob/main/examples/goldilocks.rs>.
+It is `9223372034707292161`. See <https://github.com/erhant/lambda-0b10/blob/main/examples/chal_goldilocks.rs>.
 
 > Explain generics in Rust.
 

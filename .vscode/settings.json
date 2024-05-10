@@ -1,0 +1,14 @@
+{
+  "github.copilot.enable": {
+    "markdown": "true"
+  },
+  // https://raw.githubusercontent.com/PKief/vscode-material-icon-theme/main/images/folderIcons.png
+  "material-icon-theme.folders.associations": {
+    "curves": "Animation",
+    "fields": "Hook",
+    "polynomials": "Include",
+    "numbers": "Delta"
+  },
+  // https://raw.githubusercontent.com/PKief/vscode-material-icon-theme/main/images/fileIcons.png
+  "material-icon-theme.files.associations": {}
+}
