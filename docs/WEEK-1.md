@@ -18,7 +18,7 @@ $$
 
 If a number $a$ divides another number $b$, then $a$ is called a divisor of $b$, and $b$ is called a multiple of $a$. The division of two integers $a$ and $b$ can be expressed as $a = b \cdot q + r$, where $q$ is the quotient and $r$ is the remainder. The remainder $r$ is always less than the divisor $b$.
 
-The **greatest common divisor (GCD)** of two integers $a$ and $b$, denoted as $\text{gcd}(a, b)$, is the largest positive integer that divides both $a$ and $b$ without leaving a remainder. The GCD can be computed using the Euclidean algorithm, which is an efficient way to find the GCD of two numbers. The algorithm works by iteratively replacing the larger number with the remainder of the division of the two numbers until the remainder is zero. The last non-zero remainder is the GCD of the two numbers.
+The **greatest common divisor (GCD)** of two integers $a$ and $b$, denoted as $\text{gcd}(a, b)$, is the largest positive integer that divides both $a$ and $b$ without leaving a remainder. The GCD can be computed using the **Euclidean algorithm**, which is an efficient way to find the GCD of two numbers. The algorithm works by iteratively replacing the larger number with the remainder of the division of the two numbers until the remainder is zero. The last non-zero remainder is the GCD of the two numbers.
 
 # Abstract Algebra
 
@@ -47,8 +47,8 @@ If the group has a finite number of elements, it is called a **finite group**.
 
 For the binary operation, we can use the additive notation or multiplicative notation.
 
-- Additive: $a \cdot b = a + b$
-- Multiplicative: $a \cdot b = ab$
+- **Additive**: $a \cdot b = a + b$
+- **Multiplicative**: $a \cdot b = ab$
 
 ### Examples
 
@@ -116,26 +116,83 @@ $$
 
 where $a_n, a_{n-1}, \ldots, a_1, a_0$ are the coefficients, $x$ is the variable, and $n$ is the degree of the polynomial. Polynomials are usually defined over rings, and the coefficients are elements of the ring. We are in particular interested in polynomials over finite fields of prime order.
 
-## Implementation
+### Implementation
 
 The most basic implementation of polynomials is by storing the list of coefficients, see for example <https://github.com/lambdaclass/lambdaworks/blob/bootcamp0b10/math/src/polynomial/mod.rs>.
 
-To evaluate the polynomial at a point, we can use the Horner's method, which is an efficient way to evaluate polynomials. The method is based on the observation that a polynomial can be rewritten as a nested form:
+To evaluate the polynomial at a point, we can use the **Horner's method**, which is an efficient way to evaluate polynomials. The method is based on the observation that a polynomial can be rewritten as a nested form:
 
 $$
 f(x) = a_n x^n + a_{n-1} x^{n-1} + \ldots + a_1 x + a_0 = ((a_n x + a_{n-1}) x + \ldots + a_1) x + a_0
 $$
 
+## Evaluations
+
+A degree $n$ polynomial can be represented by $n+1$ points. The polynomial interpolation problem is to find a polynomial of degree at most $n$ that passes through $n+1$ given points. **Lagrange interpolation** formula is a widely used method to find the polynomial that passes through the given points. In fact, there is a unique degree $n$ polynomial that passes through $n+1$ distinct points. This polynomial can be found using the Lagrange interpolation formula, which is based on the Lagrange basis polynomials.
+
+## Shamir's Secret Sharing
+
+Shamir's Secret Sharing is a cryptographic algorithm that allows a secret to be shared among a group of participants, such that only a subset of the participants can reconstruct the secret. The algorithm is based on polynomial interpolation, noting the fact that a degree $n-1$ polynomial can be uniquely determined by $n$ points.
+
+The algorithm works as follows:
+
+1. The secret is represented as a constant term of a polynomial of degree $t-1$.
+2. A random polynomial of degree $t-1$ is generated, where the constant term is the secret.
+3. The polynomial is evaluated at $n$ distinct points such that $n > t$, and the evaluations are shared among the participants.
+4. To reconstruct the secret, at least $t$ participants combine their shares and interpolate the polynomial to find the secret.
+
+The security of Shamir's Secret Sharing is based on the fact that any subset of less than $t$ participants does not have enough information to reconstruct the polynomial and hence the secret. Note that this security is not a computational security, but rather an information-theoretic security; meaning that there is absolutely no way to recover the secret without the required number of shares.
+
+LambdaWorks has a struct called `ShamirSecretSharing` for this, see <https://github.com/lambdaclass/lambdaworks/tree/main/examples/shamir_secret_sharing>.
+
+## Reed-Solomon Codes
+
+Reed-Solomon codes are a type of error-correcting code that is widely used in digital communication and storage systems. Consider a message $m=(m_1, m_2, \ldots, m_k)$ of length $k$ that needs to be transmitted over a noisy channel. Reed-Solomon codes encode the message into a longer codeword $c=(c_1, c_2, \ldots, c_n)$ of length $n > k$ such that the original message can be recovered even if some of the codeword symbols are corrupted.
+
+The encoding process involves generating a polynomial of degree $k-1$ from the message symbols and evaluating the polynomial at $n$ distinct points to obtain the codeword symbols. The decoding process involves interpolating the polynomial from the received codeword symbols to recover the original message.
+
+> One can think of Reed-Solomon as a Shamir's Secret Sharing scheme where the secret is the message to be transmitted, and the shares are the codeword symbols. However, all the shares are sent over the network so that if some of them are lost or corrupted, the original message can still be recovered.
+
+### Distance
+
+The **minimum distance** of a code is the minimum number of positions in which any two codewords differ. It is a measure of the error-correcting capability of the code.
+
+Error correcting codes have a measure of **distance** that is usually computed as the Hamming distance, which is the number of positions at which the corresponding symbols of two codewords are different. For instance:
+
+```py
+#   ✓  x  x  ✓  ✓  ✓
+m1: A  B  C  D  E  F
+m2: A  A  D  D  E  F
+```
+
+These two messages have a Hamming distance of 2, because the second and third symbols are different. Reed-Solomon codes have a minimum distance of $n-k+1$, which means they can correct up to $(n-k)/2$ errors. The idea is that if the errors are less than or equal to $(n-k)/2$, then the decoder can correct them by finding the closest codeword to the received word.
+
 # RSA
 
 RSA (Rivest-Shamir-Adleman) is a public-key cryptosystem that is widely used for secure data transmission. It is based on the difficulty of factoring large integers. The RSA algorithm involves the following steps:
 
-pk e, sk d. n = p.q.
+- Choose two large prime numbers $p$ and $q$, and then compute $n = p \times q$.
+
+- Compute the **Euler totient function** $\phi(n) = (p-1) \times (q-1)$. The Euler totient function $\phi(n)$ counts the number of positive integers less than $n$ that are coprime to $n$. It has a nice property that when $n$ is a prime number, $\phi(n) = n-1$. Furthermore, it is a multiplicative function, meaning that $\phi(ab) = \phi(a) \times \phi(b)$ if $a$ and $b$ are coprime. Thats how we get $(p-1)\times(q-1)$ quite easily.
+
+> One can also use the **Carmichael totient function** $\lambda(n)$, which is the smallest positive integer such that $a^{\lambda(n)} \equiv 1 \mod n$ for all $a$ coprime to $n$. The Carmichael function is always less than or equal to the Euler totient function, and is often used in RSA for more efficient implementations.
+
+- Choose an integer $e$ such that $1 < e < \phi(n)$ and $e$ is coprime to $\phi(n)$. The number $e$ is the public exponent. Some choices for $e$ are $3, 17$ and $65537$. Note that these are equal to $2^1+1, 2^4+1$ and $2^{16}+1$ respectively.
+
+> Choosing a small $e$ makes encryption faster, but is also susceptible to attacks. Most often we choose $e=65537$. For example, when $e=3$ it may be the case that $m^3$ is not so large, and is still within the modulus, so one can simply find the cube-root of the ciphertext to recover the plaintext.
+
+- Compute the private exponent $d$ such that $d \equiv e^{-1} \mod \phi(n)$. The number $d$ is the private exponent.
+
+- The **public key** is $(n, e)$, and the **private key** is $d$.
+
+To encrypt a message $m \in \mathbb{Z}_n$, the sender uses the public key $(n, e)$ to compute the ciphertext $c = m^e \mod n$. To decrypt the ciphertext, the receiver uses the private key $d$ to compute the plaintext $m = c^d \mod n$.
+
+This works because $m^{e \times d} \equiv m \mod n$ by Euler's theorem. The security of RSA is based on the difficulty of factoring the product $n = p \times q$.
+
+## Generating Primes
+
+When the prime is not large, one can simply check if it is prime by trial division. However, when the prime is large, this method is not efficient. One way to generate large prime numbers is to use the **Miller-Rabin primality test**, which is a probabilistic algorithm that can determine whether a number is prime with high probability. The algorithm works by repeatedly testing the primality of a number using a set of random bases.
 
 ## Implementation
 
 See <https://blog.lambdaclass.com/how-to-create-your-own-crappy-rsa-as-a-software-developer/>.
-
-## Generating Primes
-
-Primality Testing, Miller-Rabin, Carmichael Totient
