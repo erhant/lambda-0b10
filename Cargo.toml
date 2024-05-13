@@ -8,4 +8,6 @@ edition = "2021"
 [dependencies]
 lambdaworks-crypto = "0.7.0"
 lambdaworks-math = "0.7.0"
+num-bigint = "0.4.5"
+num-traits = "0.2.19"
 rand = "0.8.5"

@@ -177,17 +177,21 @@ RSA (Rivest-Shamir-Adleman) is a public-key cryptosystem that is widely used for
 
 > One can also use the **Carmichael totient function** $\lambda(n)$, which is the smallest positive integer such that $a^{\lambda(n)} \equiv 1 \mod n$ for all $a$ coprime to $n$. The Carmichael function is always less than or equal to the Euler totient function, and is often used in RSA for more efficient implementations.
 
-- Choose an integer $e$ such that $1 < e < \phi(n)$ and $e$ is coprime to $\phi(n)$. The number $e$ is the public exponent. Some choices for $e$ are $3, 17$ and $65537$. Note that these are equal to $2^1+1, 2^4+1$ and $2^{16}+1$ respectively.
+- Choose an integer $e$ such that $1 < e < \phi(n)$ and $e$ is coprime to $\phi(n)$. The number $e$ is the public exponent, usually a **Fermat Prime** that are primes of the form $2^k+1$. Some choices for $e$ are $3, 17$ and $65537$. Note that these are equal to $2^1+1, 2^4+1$ and $2^{16}+1$ respectively.
 
 > Choosing a small $e$ makes encryption faster, but is also susceptible to attacks. Most often we choose $e=65537$. For example, when $e=3$ it may be the case that $m^3$ is not so large, and is still within the modulus, so one can simply find the cube-root of the ciphertext to recover the plaintext.
 
 - Compute the private exponent $d$ such that $d \equiv e^{-1} \mod \phi(n)$. The number $d$ is the private exponent.
 
-- The **public key** is $(n, e)$, and the **private key** is $d$.
+- The **public key** is $(n, e)$, and the **private key** is $(p, q, d)$. If either $p$ or $q$ is known, the rest can be computed.
 
-To encrypt a message $m \in \mathbb{Z}_n$, the sender uses the public key $(n, e)$ to compute the ciphertext $c = m^e \mod n$. To decrypt the ciphertext, the receiver uses the private key $d$ to compute the plaintext $m = c^d \mod n$.
+To encrypt a message $m \in \mathbb{Z}_n$, the sender uses the public key $(n, e)$ to compute the ciphertext $c = m^e \mod n$. To decrypt the ciphertext, the receiver uses the private key $d$ to compute the plaintext $m = c^d \mod n$. This works because $m^{e \times d} \equiv m \mod n$ by Euler's Theorem.
 
-This works because $m^{e \times d} \equiv m \mod n$ by Euler's theorem. The security of RSA is based on the difficulty of factoring the product $n = p \times q$.
+> **Euler's Theorem** states that for co-prime integers $a$ and $n$, $a^{\phi(n)} \equiv 1 \mod n$.
+>
+> If $n = p$ is a prime number, then $\phi(p) = p-1$, and so $a^{p-1} \equiv 1 \mod p$ for all $a$ coprime to $p$, this is **Fermat's Little Theorem**. Euler's theorem generalizes this to composite numbers.
+
+The security of RSA is based on the difficulty of factoring the product $n = p \times q$.
 
 ## Generating Primes
 
