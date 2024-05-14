@@ -49,7 +49,7 @@ impl ReedSolomon {
         ys
     }
 
-    pub fn decode() {
+    pub fn decode() -> ! {
         unimplemented!("Quite hard to implement a decoder")
     }
 }
