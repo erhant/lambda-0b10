@@ -24,17 +24,17 @@ $$
 \begin{align*}
 s &= \frac{y_2 - y_1}{x_2 - x_1} \\
 x_3 &= s^2 - x_1 - x_2 \\
-y_3 &= s(2x_1 + x_2) - s^3 - y_1 \\
+y_3 &= s(x_1 - x_3) - y_1 \\
 \end{align*}
 $$
 
-**Doubling / Tangent Rule**: There is the case where $P = Q$, in this case we take the tangent line at $P$ and find the intersection point $R$. Given, $P = (x_1, y_1)$ the double $2P = (x_3, y_3)$ is given by almost the same formula, but with a different slope $s$:
+**Doubling / Tangent Rule**: There is the case where $P = Q$, in this case we take the tangent line at $P$ and find the intersection point $R$. Given, $P = (x_1, y_1)$ the double $2P = (x_3, y_3)$ is given by the same formula, but with a different slope $s$:
 
 $$
 \begin{align*}
-s &= \frac{3x_1^2 + a}{2Y_1} \\
+s &= \frac{3x_1^2 + a}{2y_1} \\
 x_3 &= s^2 - 2x_1 \\
-y_3 &= s(3x_1) - s^3 - y_1 \\
+y_3 &= s(x_1 - x_3) - y_1 \\
 \end{align*}
 $$
 
@@ -46,9 +46,7 @@ Given a point $P = (x, y)$ the inverse is given by $-P = (x, -y)$, that is the r
 
 ### Scalar Multiplication
 
-We can add a point to itself multiple times, this is called scalar multiplication. Given a point $P$ and a scalar $a$, we can compute $aP$ by adding $P$ to itself $a$ times. We use the efficient "double-and-add" algorithm for this. Notice that this is called "square-and-multiply" in multiplicative operations.
-
-For example, $5P = 2(2P) + P$ which uses 2 "doubles" and one addition.
+We can add a point to itself multiple times, this is called scalar multiplication. Given a point $P$ and a scalar $a$, we can compute $aP$ by adding $P$ to itself $a$ times. We use the efficient "double-and-add" algorithm for this. Notice that this is called "square-and-multiply" in multiplicative operations. For example, $5P = 2(2P) + P$ which uses 2 "doubles" and one addition.
 
 ## Number of Points
 

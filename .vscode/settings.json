@@ -7,7 +7,8 @@
     "curves": "Animation",
     "fields": "Hook",
     "polynomials": "Include",
-    "numbers": "Delta"
+    "numbers": "Delta",
+    "cryptosystems": "Secure"
   },
   // https://raw.githubusercontent.com/PKief/vscode-material-icon-theme/main/images/fileIcons.png
   "material-icon-theme.files.associations": {}
