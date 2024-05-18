@@ -200,3 +200,68 @@ When the prime is not large, one can simply check if it is prime by trial divisi
 ## Implementation
 
 See <https://blog.lambdaclass.com/how-to-create-your-own-crappy-rsa-as-a-software-developer/>.
+
+# Fast Fourier Transform (FFT)
+
+> These notes are taken from an extra lecture.
+
+The idea in FFT is that we some values $x_K$ (e.g. samplings of sounds, or coefficients of some polynomial) and we want to make the transformation $x_K \mapsto X_K$.
+
+The way to compute **Discrete Fourier Transform** (DFT) is as follows:
+
+$$
+X_K = \sum_{n = 0}^{N-1}x_Ne^{\frac{-2\pi i}{N}nK}
+$$
+
+The terms $e^{\frac{-2\pi i}{N}n}$ are the **roots of unity**, and they are the key to the FFT algorithm. For convenience, we will pick a power of two $N = 2^m$.
+
+## $N^\text{th}$ Roots of Unity
+
+TODO: ...
+
+With this knowledge, we can transform the $X_K$ equation as follows:
+
+$$
+X_K =
+
+\sum_{m=0}^{N/2-1}x_{2m} e^{\frac{-2\pi i}{N}2mK}
+
++
+
+\sum_{m=0}^{N/2-1}x_{2m+1} e^{\frac{-2\pi i}{N}(2m+1)K}
+$$
+
+In other words, we have split the sum in two, one for the even indices and one for the odd indices. This is the key to the FFT algorithm.
+
+This way, we see that to compute $\text{FFT}(x_K, N)$ you can actually do:
+
+$$
+\text{FFT}(x_K, N) =
+\text{FFT}(X_{K_\text{even}}, N/2)
+
++
+e^{\frac{-2\pi i}{N}n}
+\text{FFT}(X_{K_\text{odd}}, N/2)
+$$
+
+In fact, this can be done recursively, until you end with a really small $N$ like 2.
+
+TODO: draw mermaid for FFT of N=8, and N=4, N=2.
+
+TODO: I only use $e^{\frac{-2\pi i}{N}K}$, but there are other roots of unity that can be used.
+
+The basic operation of FFT is the "Butterfly". (even, w \* odd) and here $\omega$ is the Twiddle factor.
+
+In finite fields, we replace $e^{\frac{-2\pi i}{N}K}$ that generates a subgroup of size $N = 2^m$, with some values $g$ that generates a subgroup of size $N = 2^m$. For this reason, we need to choose a field such that $p-1 = 2^m \times k$ for some irrelevant constant $k$. When the prime order of the field is like this, we call them FFT-friendly.
+
+For example, $\mathbb{F}_{17}$ is FFT-friendly since $17-1 = 2^4 \times 1$. You can therefore to FFTs up to $N=16$, if you have a generator that generates a subgroup of size 16.
+
+> The algorithm we describe above is the radix-2 FFT, where we do even-odd splits. You can do radix-4 splits as well.
+
+## Usage
+
+When you have the polynomial, the direct FFT is good to interpolate, and inverse FFT is good to evaluate. The points where the polynomial is evaluated are the roots of unity, that is the trick.
+
+## Implementation
+
+LambdaWorks have the implementations at <https://github.com/lambdaclass/lambdaworks/tree/main/math/src/fft>.
