@@ -1,6 +1,6 @@
 > # Week 2
 >
-> We talked about Elliptic Curves, mostly on Short Weierstrass Curve and its operations.
+> We talked about Elliptic Curves, mostly on Short Weierstrass Curve and its operations. We also talked about commitments and how to commit to a polynomial using an elliptic curve. We also talked about Pairings and how they can be used to prove evaluations of a committed polynomial.
 
 # Elliptic Curves: Short Weierstrass
 
@@ -50,17 +50,23 @@ We can add a point to itself multiple times, this is called scalar multiplicatio
 
 ## Number of Points
 
-It is quite important to know how many points there are on the curve $r$. The number of points has a bound that is given by the Hasse's theorem:
+It is quite important to know how many points there are on the curve $r$, over a finite field $\mathbb{F}_p$. The number of points has a bound that is given by the [Hasse's theorem](https://en.wikipedia.org/wiki/Hasse%27s_theorem_on_elliptic_curves):
 
 $$
-p + 1 + t
+|r - (p + 1)| \le 2\sqrt{p}
 $$
 
-where $|t| \le 2\sqrt{p}$ (Hasse's bound), $r$ is the number of points in the curve and $p$ is the field size. It is important that $r$ is large and prime.
+This means that the number of points $r$ is close to the size of the field $p$ following the inequality below:
 
-> It is generally not easy to find the number of points in the curve. Sometimes you have "families of curves" and there you may have a formula to calculate the number of points. See for example BN254 curve.
+$$
+p + 1 - 2\sqrt{p} \le r \le p + 1 + 2\sqrt{p}
+$$
 
-In the best case, we would like to number of points on the curve to some large prime number. However, we are still okay with large numbers with some large prime factor.
+It is generally not easy to find the number of points in the curve. Sometimes you have "families of curves" and there you may have a formula to calculate the number of points. See for example BN254 curve.
+
+In the best case, we would like to number of points on the curve to be some large prime number. However, we are still okay with large numbers with some large prime factor.
+
+> [Schoof's Algorithm](https://en.wikipedia.org/wiki/Schoof%27s_algorithm) can be used to find the number of points on a curve.
 
 ### Trace of Frobenius
 
@@ -81,14 +87,16 @@ $$
 \{0g, g, 2g, 3g, \ldots, (r-1)g\} = E
 $$
 
-TODO: how many generators are there?
-
 In groups with non-prime order but with a large prime factor, we instead go for a generator point $g$ that generates the large prime order subgroup, not the entire group!
 
 So, to make sure we have a safe generator point, we need to make sure that:
 
 - The generator is within the curve
 - The generator generates the large prime order subgroup, meaning that its order is equal to the large prime factor!
+
+> How many generators are there in a finite field of size $p$? There are $\phi(p)$ generators, where $\phi$ is the Euler's totient function. Conveniently, if the order is prime, then you have $p-1$ generators, all elements except the identity!
+>
+> If the order is not prime but has a large prime factor, with some small co-factors, you can do seomthing called "co-factor clearing" to get a generator of the large prime order subgroup.
 
 ### Pohlig-Hellman Attack
 
@@ -120,9 +128,9 @@ The public key in Elliptic Curve Cryptography is derived using scalar multiplica
 
 The best algorithms to solve Discrete Logarithm are **Pollard's Rho** and **Baby-Step Giant-Step**. They run in time $\mathcal{O}(\sqrt{r})$ where $r$ is the number of points in the curve. For this reason, the level of security is given by the number of bits in $\sqrt{r}$. For example, $r \approx 2^{256}$ gives a security level of 128 bits.
 
-> BN254 was initially though to have 128 bits of security, but it was later subject to more clever attacks that reduced the security level to ~100 bits. TODO: reference
+> **BN254** was initially though to have 128 bits of security, but it was later subject to more clever attacks that reduced the security level to ~100 bits. (See <https://eprint.iacr.org/2017/334>)
 
-> In many cases $a = 0$ is picked in the curve, which simplifies the formulas and makes operations a bit more efficient. TODO: give example curves
+> In many cases $a = 0$ is picked in the curve, which simplifies the formulas as $y^2 = x^3 + b$ and makes operations a bit more efficient. Some examples are: [Secp256k1](https://neuromancer.sk/std/secg/secp256k1), [BN254](https://neuromancer.sk/std/bn/bn254), [BLS12-381](https://neuromancer.sk/std/bls/BLS12-381).
 
 ## Diffie-Hellman Key Exchange
 
@@ -173,15 +181,15 @@ A cryptographic hash function is a **one-way function**, they are hard to invert
 
 A hash function can be used within a commitment scheme.
 
-## Merkle Trees
+### Merkle Trees
 
-A Merkle Tree is a method of comitting to a vector of values. Consider $\vec{a} = (a_0, a_1, \ldots, a_{n-1})$ where $n=2^m$, we can commit to this vector by creating a tree of hashes. The leaves of the tree are the values $a_i$, and the internal nodes are the hashes of their children.
+A [Merkle Tree](https://en.wikipedia.org/wiki/Merkle_tree) is a method of comitting to a vector of values. Consider $\vec{a} = (a_0, a_1, \ldots, a_{n-1})$ where $n=2^m$, we can commit to this vector by creating a tree of hashes. The leaves of the tree are the values $a_i$, and the internal nodes are the hashes of their children.
 
 We can use any cryptographic hash function within our Merkle Tree, but most people use SHA-2, SHA-3, Blake2, or Blake3; there are mostly based on bitwise operations. Within the zero-knowledge space, people use more "circuit-friendly" hashes such as Poseidon, Monolith, and Rescue; these are mostly based on Algebraic operations.
 
 When we create a binary tree of hashes, we can commit to a value by revealing the root of the tree. This is a commitment to the entire vector of values, also denoted as the **Merkle Root**.
 
-In particular, we will use the Merkle Trees as a way of committing to polynomials! Consider a polynomial with coefficients $(a_0, a_1, \ldots, a_{n-1})$, we can commit to this polynomial by creating a Merkle Tree from this list of values, treated as a vector. Using this, we will actually be able to build a **polynomial commitment scheme**. In particular, we would like to prove evaluations of a committed polynomial.
+In particular, we will use the Merkle Trees as a way of committing to polynomials! Consider a polynomial with coefficients $(a_0, a_1, \ldots, a_{n-1})$, we can commit to this polynomial by creating a Merkle Tree from this list of values, treated as a vector. Using this, we will actually be able to build a **polynomial commitment scheme**. In particular, we would like to prove **evaluations** of a committed polynomial.
 
 ## Using Elliptic Curves for Commitments
 
@@ -199,13 +207,7 @@ $$
 \{s^0g, s^1g, s^2g, s^3g, \ldots, s^{n-1}g\}
 $$
 
-This is basically a set of points:
-
-$$
-\{P_0, P_1, \ldot,s P_{n-1}\}
-$$
-
-We refer to this as a **Structured Reference String** (SRS). Now, you can do the following:
+This is basically a set of points $\{P_0, P_1, \ldots, P_{n-1}\}$. We refer to this as a **Structured Reference String** (SRS). Now, you can do the following:
 
 $$
 P(S)g = \sum a_iP_i = a_0P_0 + a_1P_1 + a_2P_2 + \ldots + a_{n-1}P_{n-1}
@@ -250,14 +252,26 @@ $$
 
 Notice that non-degenerancy is helpful here because $e(g_1, g_2) \ne 1$, so we have some non-identity element that we are raising to some power.
 
-What we then do is:
+### Pairing-Based Polynomial Evaluation Proof
+
+> See [this blog](https://blog.lambdaclass.com/mina-to-ethereum-bridge/) for info on KZG.
+
+As described above with Multi-Scalar Multiplication (MSM), we have a commitment $P_s = P(s)g$ and we want to prove that $P(z) = v$ for some $z$. We will use the pairing to do this.
+
+If $P(z) = v$, it follows immediately that $P(z) - v = 0$. This means that there exists a polynomial $Q(x)$ such that: $P(x) - v = (x-z)Q(x)$. We can commit to this polynomial $Q$ as $Q_s = Q(s)g$ using MSM as before.
+
+Since we only have the commitments, but not the polynomials, we need a different way to check these evaluations! We will use the pairing to do this.
+
+We can compute the following pairings:
+
+$$
+e(P_s - vg_1, g_2) = e((P(s) - v)g_1, g_2) = e(g_1, g_2)^{P(s) - v}
+$$
 
 $$
 e(Q_s, sg_2 - zg_2) = e(Q(s)g_1, (s-z)g_2) = e(g_1, g_2)^{Q(s)(s-z)}
 $$
 
-$$
-e(P_s - vg_1, g_2) = e((P(s) - v)g_1, g_2) = e(g_1, g_2)^{P(x) - v}
-$$
+Since both $g_1, g_2$ are not the point at infinity, and that the pairing is non-degenerate, this result is some point on the curve. We can compare these two pairings, and check if they are equal. So, the pairing allows us to ensure $P(x) - v = (x-z)Q(x)$.
 
-We can compare these two pairings, and check if they are equal. This works over a random point thanks to the Schwartz-Zippel Lemma.
+> This works over a random point thanks to the Schwartz-Zippel Lemma.

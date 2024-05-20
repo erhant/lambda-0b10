@@ -1,6 +1,6 @@
 > # Week 1
 >
-> We talked about prime numbers, divisibility. Then we talked about groups, rings, and fields. We also talked about Montgomery form for field elements, and using limbs for that for better performance. In particular, we talked about Mersenne primes and MiniGoldilocks prime, and show how we can have efficient "modular reductions" there. The overall idea is that division & remainder is expensive and we would like to do as few as possible.
+> We talked about prime numbers, divisibility. Then we talked about groups, rings, and fields. We also talked about Montgomery form for field elements, and using limbs for that for better performance. In particular, we talked about Mersenne primes and MiniGoldilocks prime, and show how we can have efficient "modular reductions" there. We had an extra lecture on FFTs.
 
 # Arithmetic
 
@@ -203,54 +203,103 @@ See <https://blog.lambdaclass.com/how-to-create-your-own-crappy-rsa-as-a-softwar
 
 # Fast Fourier Transform (FFT)
 
-> These notes are taken from an extra lecture.
+> These notes are taken from an extra lecture. See also [this](https://www.phys.uconn.edu/~rozman/Courses/m3511_19s/downloads/radix2fft.pdf).
 
-The idea in FFT is that we some values $x_K$ (e.g. samplings of sounds, or coefficients of some polynomial) and we want to make the transformation $x_K \mapsto X_K$.
-
-The way to compute **Discrete Fourier Transform** (DFT) is as follows:
+The idea of Discrete (or Finite) Fourier Transform (DFT) is that we have a vector $x = (x_0, x_1, \ldots, x_{N-1}) = \{x_n\}$ with $N$ elements, and we want to obtain another vector $X = (X_0, X_1, \ldots, X_{N-1}) = \{X_k\}$ with $N$ such that:
 
 $$
-X_K = \sum_{n = 0}^{N-1}x_Ne^{\frac{-2\pi i}{N}nK}
+X_K = \sum_{n = 0}^{N-1}x_n e^{-\frac{2\pi i}kn} = \sum_{n = 0}^{N-1}x_n \omega^{kn}
 $$
 
-The terms $e^{\frac{-2\pi i}{N}n}$ are the **roots of unity**, and they are the key to the FFT algorithm. For convenience, we will pick a power of two $N = 2^m$.
-
-## $N^\text{th}$ Roots of Unity
-
-TODO: ...
-
-With this knowledge, we can transform the $X_K$ equation as follows:
+The terms $e^{-\frac{2\pi i}{N}kn}$ are the **roots of unity**, and they are usually shown with $\omega$ such that for $i=\sqrt{-1}, k = 0, 1, \ldots, N-1$:
 
 $$
-X_K =
+\omega = e^{-\frac{2\pi i}{N}}
+$$
 
-\sum_{m=0}^{N/2-1}x_{2m} e^{\frac{-2\pi i}{N}2mK}
+This $\omega$ is a primitive $N$-th root of unity. TODO: explain more
 
+## Cooley-Tukey Radix-2 FFT
+
+Fix $N$ to be some power of two as $N = 2^m$. The trick is that we can decompose a FFT over $N$ as two FFTs over $N/2$, reducing the problem size in half. In fact, we can do this recursively to obtain a very efficient algorithm, reducing the complexity from $\mathcal{O}(N^2)$ to $\mathcal{O}(N \log{N})$.
+
+The trick is the following arrangement of the equation for $X_K$ defined above:
+
+$$
+X_k =
+
+\sum_{m=0}^{N/2-1}x_{2m} e^{-\frac{2\pi i}{N}(2m)k}
 +
-
-\sum_{m=0}^{N/2-1}x_{2m+1} e^{\frac{-2\pi i}{N}(2m+1)K}
+\sum_{m=0}^{N/2-1}x_{2m+1} e^{-\frac{2\pi i}{N}(2m+1)k}
 $$
 
-In other words, we have split the sum in two, one for the even indices and one for the odd indices. This is the key to the FFT algorithm.
-
-This way, we see that to compute $\text{FFT}(x_K, N)$ you can actually do:
+In other words, we have split the sum in two: one for the _even_ indices and one for the _odd_ indices. This is the key to the FFT algorithm! Now, we can actually factor out $e^{-\frac{2\pi i}{N}}$ from the second term, and obtain the following:
 
 $$
-\text{FFT}(x_K, N) =
-\text{FFT}(X_{K_\text{even}}, N/2)
+X_k =
 
+\sum_{m=0}^{N/2-1}x_{2m} e^{-\frac{2\pi i}{N}(2m)k}
 +
-e^{\frac{-2\pi i}{N}n}
-\text{FFT}(X_{K_\text{odd}}, N/2)
+e^{-\frac{2\pi i}{N}k} \sum_{m=0}^{N/2-1}x_{2m+1} e^{-\frac{2\pi i}{N}(2m)k}
 $$
 
-In fact, this can be done recursively, until you end with a really small $N$ like 2.
+Let us denote the first sum as $E_k$ and the second sum as $O_k$. Then we have:
 
-TODO: draw mermaid for FFT of N=8, and N=4, N=2.
+$$
+X_k = E_k + e^{-\frac{2\pi i}{N}k} O_k
+$$
 
-TODO: I only use $e^{\frac{-2\pi i}{N}K}$, but there are other roots of unity that can be used.
+The functions $E_k$ and $O_k$ are periodic with period $N/2$, meaning that $E_{k+N/2} = E_k$ and $O_{k+N/2} = O_k$. This is because the roots of unity are periodic with period $N$. TODO: ???
 
-The basic operation of FFT is the "Butterfly". (even, w \* odd) and here $\omega$ is the Twiddle factor.
+Thanks to this fact, we have the following for $X_k$:
+
+$$
+X_k =
+\begin{cases}
+E_k       + e^{-\frac{2\pi i}{N}k} O_k       & \text{for } 0   \leq k < N/2 \\
+E_{k-N/2} + e^{-\frac{2\pi i}{N}k} O_{k-N/2} & \text{for } N/2 \leq k < N
+\end{cases}
+$$
+
+The factor $e^{-\frac{2\pi i}{N}k}$ is called the **Twiddle factor**, and it also has the following cool property:
+
+$$
+e^{-\frac{2\pi i}{N}(k+N/2)} = e^{-\frac{2\pi i}{N}k} e^{-\pi i} = -e^{-\frac{2\pi i}{N}k}
+$$
+
+Therefore, we can write $X_k$ as the following:
+
+$$
+\begin{align*}
+X_k &= E_k + e^{-\frac{2\pi i}{N}k} O_k \\
+X_{k+N/2} &= E_k - e^{-\frac{2\pi i}{N}k} O_k \\
+\end{align*}
+$$
+
+This final result is how we express a DFT of length $N$ as two DFTs of length $N/2$. This two-line operation is also called a "Butterfly", and for $N=2$ we can show it as follows:
+
+$$
+\begin{align*}
+X_0 &= x_0 + x_1 \\
+X_1 &= x_0 - x_1 \\
+\end{align*}
+$$
+
+Here it is in Mermaid as well:
+
+```mermaid
+graph LR
+  x0["x[0]"]; x1["x[1]"]
+  y0["X[0] = x[0] + x[1]"]; y1["X[1] = x[0] - x[1]"]
+
+  x0 & x1 --"+"--> y0
+  x0 --"+"--> y1
+  x1 --"-"--> y1
+```
+
+### Number Theoretic Transform
+
+> See [this](https://open.metu.edu.tr/bitstream/handle/11511/102002/Asl%C4%B1_Ebru_Kaya_Term_Project.pdf).
 
 In finite fields, we replace $e^{\frac{-2\pi i}{N}K}$ that generates a subgroup of size $N = 2^m$, with some values $g$ that generates a subgroup of size $N = 2^m$. For this reason, we need to choose a field such that $p-1 = 2^m \times k$ for some irrelevant constant $k$. When the prime order of the field is like this, we call them FFT-friendly.
 
@@ -258,9 +307,7 @@ For example, $\mathbb{F}_{17}$ is FFT-friendly since $17-1 = 2^4 \times 1$. You 
 
 > The algorithm we describe above is the radix-2 FFT, where we do even-odd splits. You can do radix-4 splits as well.
 
-## Usage
-
-When you have the polynomial, the direct FFT is good to interpolate, and inverse FFT is good to evaluate. The points where the polynomial is evaluated are the roots of unity, that is the trick.
+When you have the polynomial, the direct FFT is good for **interpolation**, and inverse FFT is good for **evaluation**. The points where the polynomial is evaluated are the **roots of unity**, that is the trick.
 
 ## Implementation
 
