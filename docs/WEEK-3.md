@@ -1,6 +1,6 @@
 > # Week 3
 >
-> We talked about SNARKs, and implemented a BabySNARK!
+> We talked about SNARKs, BabySNARK (do do doo) in particular.
 
 # SNARKs
 
@@ -137,9 +137,9 @@ What we often have is that people write "gadgets", such as boolean gates, field 
 
 Some tools that convert a problem into a SNARK-friendly format are:
 
-- Circom
-- Noir
-- Cairo
+- [Circom](https://iden3.io/circom)
+- [Noir](https://noir-lang.org/)
+- [Cairo](https://www.cairo-lang.org/)
 
 ## Zero-Knowledge Property
 
@@ -206,29 +206,9 @@ $$
 p(x) - Z(x) . h(x) = r(x)
 $$
 
-## Hiding the Polynomial
-
-Recall our equation:
-
-$$
-(\sum u_{j}(x) z_j)^2 - 1 = p(x)
-$$
-
-We will make use of polynomial commitments (e.g. KZG) to compute a commitment to a polynomial, for example $cm(p) = p(s)g_1 = $ TODO: !!!!
-
-Consider a bilinear and non-degenerate pairing $e : G_1 \times G_2 \to G_T$. The following two pairings allow one to check $p(s) = Z(s) . h(s)$ in a really efficient way (i.e. just using a few points on the elliptic curve):
-
-$$
-e(h(s)g_1, z(s)g_2) = e(g_1, g_2)^{h(s)Z(s)}
-$$
-
-$$
-e(p(s)g_1, g_2) = e(g_1, g_2)^{p(s)}
-$$
-
-TODO: !!!
-
-TODO: checks 1, 2, 3
+> [!ALERT]
+>
+> This part may be incomplete.
 
 ## Trusted Setup
 
@@ -278,4 +258,9 @@ The proof used 4 MSMs, and just outputs 4 curve elements. Not only this is much 
 
 If all checks pass, the proof is valid. TODO: final term in step 5?
 
-> This whole proof thing was the description of BabySnark, and it is implemented in LambdaWorks! See <https://github.com/lambdaclass/lambdaworks/tree/main/examples/baby-snark>.
+## Implementation
+
+BabySNARK is implemented in LambdaWorks! See <https://github.com/lambdaclass/lambdaworks/tree/main/examples/baby-snark>.
+
+https://github.com/pim-book/programmers-introduction-to-mathematcs
+https://github.com/pim-book/programmers-introduction-to-mathematics

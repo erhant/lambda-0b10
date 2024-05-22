@@ -217,7 +217,21 @@ $$
 \omega = e^{-\frac{2\pi i}{N}}
 $$
 
-This $\omega$ is a primitive $N$-th root of unity. TODO: explain more
+## Primitive Root of Unity
+
+This $\omega$ is a primitive $N$-th root of unity. A primitive $n$-th root of unity is a root of unity whose multiplicative order is $n$. More formally, $\omega$ is a primitive $n$-th root of unity if $\omega^n = 1$ and $\omega^k \neq 1$ for all $k < n$, meaning that $n$ is the smallest number satisfying $\omega^n = 1$.
+
+In the domain of complex numbers, the roots of unity are the solutions to the equation $z^n = 1$. The solutions are given by $z_k = e^{\frac{2\pi i}{n}k}$ for $k \in \{0, 1, \ldots, n-1\}$. These roots form a cyclic group of order $n$ under multiplication, and they are equally spaced around the unit circle in the complex plane.
+
+> Remember Euler's law that states $e^{ix} = \cos{x} + i\sin{x}$. Of course, when $x = 2\pi/n$, we have $e^{i\frac{2\pi i}{n}}$, and taking that to $n$'th power gives us $e^{2\pi} = \cos{2\pi} + i\sin{2\pi} = 1 $.
+
+There are some properties that are important for the primitive roots:
+
+- **Periodicity**: $\omega^{n+k} = \omega^k$ for all $k \in \mathbb{Z}$. This is evident as $\omega^n = 1$ acts like the identity of multiplication.
+
+- **Symmetry**: $\omega^{k + n/2} = -\omega^{k}$ for all $k \in \mathbb{Z}$. This is because $\omega^n = 1$.
+
+Also note that if $\omega$ is an $n$-th root of unity, then $\omega^2$ is a $(n/2)$'th root of unity.
 
 ## Cooley-Tukey Radix-2 FFT
 
@@ -249,9 +263,7 @@ $$
 X_k = E_k + e^{-\frac{2\pi i}{N}k} O_k
 $$
 
-The functions $E_k$ and $O_k$ are periodic with period $N/2$, meaning that $E_{k+N/2} = E_k$ and $O_{k+N/2} = O_k$. This is because the roots of unity are periodic with period $N$. TODO: ???
-
-Thanks to this fact, we have the following for $X_k$:
+The functions $E_k$ and $O_k$ are periodic with period $N/2$, meaning that $E_{k+N/2} = E_k$ and $O_{k+N/2} = O_k$. This is because the roots of unity are periodic with period $N$. Thanks to this fact, we have the following for $X_k$:
 
 $$
 X_k =
@@ -299,13 +311,13 @@ graph LR
 
 ### Number Theoretic Transform
 
-> See [this](https://open.metu.edu.tr/bitstream/handle/11511/102002/Asl%C4%B1_Ebru_Kaya_Term_Project.pdf).
+> See [this term project](https://open.metu.edu.tr/bitstream/handle/11511/102002/Asl%C4%B1_Ebru_Kaya_Term_Project.pdf) for more details on radix-2 NTT.
 
-In finite fields, we replace $e^{\frac{-2\pi i}{N}K}$ that generates a subgroup of size $N = 2^m$, with some values $g$ that generates a subgroup of size $N = 2^m$. For this reason, we need to choose a field such that $p-1 = 2^m \times k$ for some irrelevant constant $k$. When the prime order of the field is like this, we call them FFT-friendly.
+In finite fields, we replace $e^{\frac{-2\pi i}{N}K}$ that generates a subgroup of size $N = 2^m$, with some values $g$ in a **finite field** that generates a subgroup of size $N = 2^m$. For this reason, we need to choose a field such that $p-1 = 2^m \times k$ for some irrelevant constant $k$. When the prime order of the field is like this, we call them FFT-friendly.
 
 For example, $\mathbb{F}_{17}$ is FFT-friendly since $17-1 = 2^4 \times 1$. You can therefore to FFTs up to $N=16$, if you have a generator that generates a subgroup of size 16.
 
-> The algorithm we describe above is the radix-2 FFT, where we do even-odd splits. You can do radix-4 splits as well.
+The algorithm we describe above is the radix-2 FFT, where we do even-odd splits. You can do radix-4 splits as well.
 
 When you have the polynomial, the direct FFT is good for **interpolation**, and inverse FFT is good for **evaluation**. The points where the polynomial is evaluated are the **roots of unity**, that is the trick.
 

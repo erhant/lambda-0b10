@@ -12,8 +12,6 @@ $$
 
 where $4a^3 + 27b^2 \ne 0$. Notice that this means we are looking for $x$ where $x^3 + ax + b$ is a square (also denoted as **Quadratic Residue**).
 
-> Diophantine worked on finding rational points on these curves! TODO: add ref
-
 ## Point Addition
 
 Elliptic curves form a group under the operation of point addition that is $+:E\times E \to E$. The identity element is the point at infinity $\mathcal{O}$ and we kind of add this as an _extra_ point.
@@ -68,16 +66,14 @@ In the best case, we would like to number of points on the curve to be some larg
 
 > [Schoof's Algorithm](https://en.wikipedia.org/wiki/Schoof%27s_algorithm) can be used to find the number of points on a curve.
 
-### Trace of Frobenius
+### Curves for Recursion
 
-TODO: explain
+Pasta curves are quite interesting, i.e. the two curves Pallas and Vesta. Both curves are defined over the equation $y^2 = x^3 + 5$.
 
-> Pasta curves are quite interesting, i.e. the two curves Pallas and Vesta. Both curves are defined over the equation $y^2 = x^3 + 5$.
->
-> - Pallas curve is defined over $\mathbb{F}_p$ base field, and has $r$ points.
-> - Vesta curve is defined over $\mathbb{F}_{r}$ extension field, and has $p$ points.
->
-> Mina Protocol uses these curves for efficient verification! Similarly, Nova folding scheme uses these curves for efficient verification.
+- Pallas curve is defined over $\mathbb{F}_p$ base field, and has $r$ points.
+- Vesta curve is defined over $\mathbb{F}_{r}$ extension field, and has $p$ points.
+
+[Mina Protocol](https://o1-labs.github.io/proof-systems/specs/pasta.html) uses these curves for efficient verification! Similarly, [Nova folding scheme](microsoft) uses these curves for efficient verification.
 
 ## Generator Point
 
@@ -193,13 +189,11 @@ In particular, we will use the Merkle Trees as a way of committing to polynomial
 
 ## Using Elliptic Curves for Commitments
 
-Now, we look at a commitment scheme known as KZG (Kate-Zaverucha-Goldberg) commitment scheme. Consider an elliptic curve $E$ with prime order.
+Now, we look at a commitment scheme known as [KZG (Kate-Zaverucha-Goldberg)](https://www.iacr.org/archive/asiacrypt2010/6477178/6477178.pdf) commitment scheme. Consider an elliptic curve $E$ with prime order.
 
 One way of committing to a polynomial $P$ would be to evaluate the polynomial at a point $s$ to obtain $P(s)$, and then commit to the evaluation using a generator $g$ by doing $P(s)g$. The resulting commitment is just a point in the curve.
 
 If you were the one who received the commitment, you would have to solve discrete-log to find out the polynomial, but that is hard. This is a **hiding** commitment scheme. However, this is not binding, you could simply pick the constant polynomial $Q(x) = P(s)$.
-
-> TODO: Check Pedersen hashes & inner-product arguments (IPA)
 
 Is there are a way to commit without knowing $s$? Yes! Imagine a set of points like:
 
@@ -215,13 +209,11 @@ $$
 
 So, no need to know what $s$ is to evaluate the polynomial at that point! Notice that given any $P_i = s^ig$, you cant find $s$ thanks to discrete-log. This operation is called **Multi-Scalar Multiplication** (MSM) and is the main bottleneck within the zk-SNARKs. One of the most efficient algorithms on this is called the **Pippenger's Algorithm**.
 
-> TODO: check "Security in the algebraic model".
-
 > In one CTF, the trick was to look at the SRS and see that the points were repeating from some point on! There, $s$ belonged to a small order subgroup.
 
-> TODO: MOV Attack and Cheon's Attack in Pairings
-
 Thanks to this new method, we now have a commitment scheme that is both hiding and binding. We have computed $P_s = P(s)g$ without knowing $s$ and we can't change the polynomial without knowing $s$ to break the binding property.
+
+> [MOV Attack](https://www.dima.unige.it/~morafe/MaterialeCTC/p80-menezes.pdf) and [Cheon's Attack](https://iacr.org/archive/eurocrypt2006/40040001/40040001.pdf) are attacks on the discrete log problem in the context of pairing-based cryptography.
 
 ## Pairings
 
@@ -272,6 +264,4 @@ $$
 e(Q_s, sg_2 - zg_2) = e(Q(s)g_1, (s-z)g_2) = e(g_1, g_2)^{Q(s)(s-z)}
 $$
 
-Since both $g_1, g_2$ are not the point at infinity, and that the pairing is non-degenerate, this result is some point on the curve. We can compare these two pairings, and check if they are equal. So, the pairing allows us to ensure $P(x) - v = (x-z)Q(x)$.
-
-> This works over a random point thanks to the Schwartz-Zippel Lemma.
+Since both $g_1, g_2$ are not the point at infinity, and that the pairing is non-degenerate, this result is some point on the curve. We can compare these two pairings, and check if they are equal. So, the pairing allows us to ensure $P(x) - v = (x-z)Q(x)$. This works over a random point thanks to the Schwartz-Zippel Lemma.
