@@ -206,7 +206,7 @@ $$
 p(x) - Z(x) . h(x) = r(x)
 $$
 
-> [!ALERT]
+> [!WARNING]
 >
 > This part may be incomplete.
 
