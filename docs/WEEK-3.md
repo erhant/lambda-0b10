@@ -254,9 +254,9 @@ The proof used 4 MSMs, and just outputs 4 curve elements. Not only this is much 
 
 4. Compute $V_u(s)g_1 = \boxed{V_u}_1$ and $V_u(s)g_2 = \boxed{V_u}_2$ from the public inputs.
 
-5. Check $e(\boxed{V_u}_1 + \boxed{V_w}_1, \boxed{V_u}_2 + \boxed{V_w}_2) e(g_1, g_2)^{-1} = e()$
+5. Check $e(\boxed{V_u}_1 + \boxed{V_w}_1, \boxed{V_u}_2 + \boxed{V_w}_2) e(g_1, g_2)^{-1} = e(\boxed{h}_1, \boxed{Z}_2)$ where $\boxed{Z}_2 = Z(s)g_2$.
 
-If all checks pass, the proof is valid. TODO: final term in step 5?
+If all checks pass, the proof is valid!
 
 ## Implementation
 
