@@ -261,6 +261,3 @@ If all checks pass, the proof is valid. TODO: final term in step 5?
 ## Implementation
 
 BabySNARK is implemented in LambdaWorks! See <https://github.com/lambdaclass/lambdaworks/tree/main/examples/baby-snark>.
-
-https://github.com/pim-book/programmers-introduction-to-mathematcs
-https://github.com/pim-book/programmers-introduction-to-mathematics
