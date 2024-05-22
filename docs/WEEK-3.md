@@ -13,7 +13,7 @@ We usually formalize this relation using an arithmetic circuit $C$ that takes $x
 ```mermaid
 graph LR
     x1[x1]; x2[x2]
-    m(($$\times$$)); a(($$+$$))
+    m((x)); a((+))
     x1 & x2 --> m
     2 & m --> a
     a --> 0

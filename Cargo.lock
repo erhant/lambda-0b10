@@ -9,6 +9,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0c4b4d0bd25bd0b74681c0ad21497610ce1b7c91b1022cd21c80c6fbdd9476b0"
 
 [[package]]
+name = "baby-snark"
+version = "0.7.0"
+source = "git+https://github.com/lambdaclass/lambdaworks.git?branch=main#f6dda1c526c49a33809684c44a948e20dadf5a78"
+dependencies = [
+ "lambdaworks-crypto 0.7.0 (git+https://github.com/lambdaclass/lambdaworks.git?branch=main)",
+ "lambdaworks-math 0.7.0 (git+https://github.com/lambdaclass/lambdaworks.git?branch=main)",
+ "rand",
+ "rand_chacha",
+]
+
+[[package]]
 name = "block-buffer"
 version = "0.10.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -123,11 +134,13 @@ dependencies = [
 name = "lambda-0b10"
 version = "0.1.0"
 dependencies = [
- "lambdaworks-crypto",
- "lambdaworks-math",
+ "baby-snark",
+ "lambdaworks-crypto 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "lambdaworks-math 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "num-bigint",
  "num-traits",
  "rand",
+ "rand_chacha",
 ]
 
 [[package]]
@@ -136,8 +149,18 @@ version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7fb5d4f22241504f7c7b8d2c3a7d7835d7c07117f10bff2a7d96a9ef6ef217c3"
 dependencies = [
- "lambdaworks-math",
+ "lambdaworks-math 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde",
+ "sha2",
+ "sha3",
+]
+
+[[package]]
+name = "lambdaworks-crypto"
+version = "0.7.0"
+source = "git+https://github.com/lambdaclass/lambdaworks.git?branch=main#f6dda1c526c49a33809684c44a948e20dadf5a78"
+dependencies = [
+ "lambdaworks-math 0.7.0 (git+https://github.com/lambdaclass/lambdaworks.git?branch=main)",
  "sha2",
  "sha3",
 ]
@@ -152,6 +175,11 @@ dependencies = [
  "serde",
  "serde_json",
 ]
+
+[[package]]
+name = "lambdaworks-math"
+version = "0.7.0"
+source = "git+https://github.com/lambdaclass/lambdaworks.git?branch=main#f6dda1c526c49a33809684c44a948e20dadf5a78"
 
 [[package]]
 name = "libc"

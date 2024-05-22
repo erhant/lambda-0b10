@@ -311,7 +311,7 @@ graph LR
 
 ### Number Theoretic Transform
 
-> See [this term project](https://open.metu.edu.tr/bitstream/handle/11511/102002/Asl%C4%B1_Ebru_Kaya_Term_Project.pdf) for more details on radix-2 NTT.
+> See [this term project](https://open.metu.edu.tr/bitstream/handle/11511/102002/Asl%C4%B1_Ebru_Kaya_Term_Project.pdf) for more details on radix-2 NTT, or [this lovely post](https://decentralizedthoughts.github.io/2023-09-01-FFT/).
 
 In finite fields, we replace $e^{\frac{-2\pi i}{N}K}$ that generates a subgroup of size $N = 2^m$, with some values $g$ in a **finite field** that generates a subgroup of size $N = 2^m$. For this reason, we need to choose a field such that $p-1 = 2^m \times k$ for some irrelevant constant $k$. When the prime order of the field is like this, we call them FFT-friendly.
 
