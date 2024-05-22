@@ -86,12 +86,12 @@ $$
 
 Now lets write this as a matrix equation:
 
-$$
+```math
 \begin{pmatrix}
     -1 & 2 & 0 & 0 \\
     -1 & 0 & 2 & 0 \\
     -1 & 0 & 0 & 2 \\
-    -1 & 1 & 1 & 1 \\
+    -1 & 1 & 1 & 1
 \end{pmatrix}
 \begin{pmatrix}
 1 \\ a \\ b \\ c
@@ -100,11 +100,11 @@ $$
 \begin{pmatrix}
 1 \\ 1 \\ 1 \\ 1
 \end{pmatrix}
-$$
+```
 
 Square Span problems are "modular" in the sense that we can "connect" them together to form a larger Square Span problem. For example, continuing from the XOR above, if we wanted to compute another XOR of $c \oplus d = e$, we could just add another row to the matrix:
 
-$$
+```math
 \begin{pmatrix}
     -1 & 2 & 0 & 0 & 0 & 0 \\
     -1 & 0 & 2 & 0 & 0 & 0 \\
@@ -113,7 +113,7 @@ $$
     -1 & 0 & 0 & 2 & 0 & 0 \\
     -1 & 0 & 0 & 0 & 2 & 0 \\
     -1 & 0 & 0 & 0 & 0 & 2 \\
-    -1 & 0 & 0 & 1 & 1 & 1 \\
+    -1 & 0 & 0 & 1 & 1 & 1
 \end{pmatrix}
 \begin{pmatrix}
 1 \\ a \\ b \\ c \\ d \\ e
@@ -122,7 +122,7 @@ $$
 \begin{pmatrix}
 1 \\ 1 \\ 1 \\ 1 \\ 1 \\ 1
 \end{pmatrix}
-$$
+```
 
 Notice that the first 4 rows are the same as the previous matrix, and the last rows are for the new XOR operation. Further notice that 3rd and 5th rows are the same, making the constraint two times gains us nothing, we could optimize the constraints there if we wanted to.
 
