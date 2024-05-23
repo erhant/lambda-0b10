@@ -261,3 +261,109 @@ If all checks pass, the proof is valid!
 ## Implementation
 
 BabySNARK is implemented in LambdaWorks! See <https://github.com/lambdaclass/lambdaworks/tree/main/examples/baby-snark>.
+
+# Field Extensions
+
+Recall that we had fields defined over integers modulo some prime $p$, denoted as $\mathbb{F}_p$. The elements of this field obeyed the addition and multiplication laws in mod $p$. We can go beyond that.
+
+## Over Real Numbers & Complex Numbers
+
+Consider a ring of polynomials over real numbers $\mathbb{R}[x] = a_0 + a_1x + a_2x^2 + \ldots + a_nx^n$. Then, consider an irreducible polynomial such as $I(x) = x^2 + 1$. We can define a field extension $\mathbb{R}[x] / I(x)$ where we can have elements such as $a + bx$ where $a, b \in \mathbb{R}$.
+
+What happens in this example is that, whenever the degree of polynomial in $\mathbb{R}[x]$ is greater than or equal to $I(x)$, we divide the polynomials and look at the remainder, just like we do in modular arithmetic. So, every polynomial in $\mathbb{R}[x]$ can be written as $a + bx$ where $a, b \in \mathbb{R}$.
+
+When working with polynomials, we can define addition and multiplication laws as well. For the example above:
+
+- $(a_0 + a_1x) + (b_0 + b_1x) = (a_0 + b_0) + (a_1 + b_1)x$
+- $(a_0 + a_1x) + (b_0 + b_1x) = a_0b_0 + (a_0b_1 + a_1b_0) + a_1b_1x^2$
+
+Now, that multiplication above has a term $x^2$ which is **not** in our field extension. We can reduce this term using the irreducible polynomial $I(x)$. We will simply divide the result by $I(x)$ and look at the remainder.
+
+> In this case, $a_0b_0 + (a_0b_1 + a_1b_0) + a_1b_1x^2 \bmod{x^2 + 1}$ results in $(a_0b_0 - a_1b_1) + (a_0b_1 + a_1b_0)x$. This is actually equivalent to the Complex number multiplication! In other words, $x^2$ became $-1$.
+
+An irredicuble polynomial can not be factorized into smaller polynomials, doing that would imply that there is a root, in other words: $I(x) = (x - a)Q(x)$ would mean that $a$ is a root of $I(x)$.
+
+Another interesting fact about field extensions is that we still have the definitions for a multiplicative inverse! That is, for $p(x)$ we can find a polynoimal $q(x)$ such that $p(x)q(x) \equiv 1 \pmod{I(x)}$.
+
+> In this example, we have used $I(x) = x^2 + 1$. We call our field extension a "degree-2 extension", or a "quadratic extension". When $(x, y) \in \mathbb{R}$, we can view the field extension as a "$\mathbb{R}$-vector space of dimension 2".
+
+A question one may ask here, why $x^2 + 1$ but not something like $x^2 + 3$? Well, its because both field extensions would be **isomorphic**, so they are essentially the same thing. Using $x^2 + 1$ is just a convention and is much more efficient.
+
+> There are some more efficient multiplication methods in field extensions, such as [Karatsuba](https://en.wikipedia.org/wiki/Karatsuba_algorithm) and [Toom-Cook](https://en.wikipedia.org/wiki/Toom%E2%80%93Cook_multiplication). The funny thing is, uou can even use FFT if you really want and it has the "best asymptotic complexity" for multiplication; but it requires a 1729 dimensional FFT! This result comes from the [Schönhage-Strassen](https://en.wikipedia.org/wiki/Sch%C3%B6nhage%E2%80%93Strassen_algorithm) algorithm. This is not practical in real life usage, making this algorithm a [_Galactic algorithm_](https://en.wikipedia.org/wiki/Galactic_algorithm).
+
+## Over Finite Fields: Binary Field
+
+Consider the finite field $\mathbb{F}_2 = \{0, 1\}$. The addition and multiplication laws are defined as:
+
+- $0 + 0 = 0$, $0 + 1 = 1$, $1 + 0 = 1$, $1 + 1 = 0$. This is just our ordinary XOR operation.
+- $0 \times 0 = 0$, $0 \times 1 = 0$, $1 \times 0 = 0$, $1 \times 1 = 1$. This is just our ordinary AND operation.
+
+> So things are pretty simple as we can see, and quite efficient as we can use bitwise operations.
+
+A binary field extension of degree $m$ is shown as $\mathbb{F}_{2^m}$ (or alternatively $GF(2^m)$ due to Galois, inventor of fields). Let's pick an irreducible polynoimal. $I(x) = x^2 + 1$ is not irreducible in a binary field! Simply, $I(1) = 1 + 1 = 0$. So, we can actually write it as $I(x) = (x+1)(x+1)$.
+
+Instead, we can pick $I(x) = x^2 + x + 1$, which is irreducible. We can define a field extension $\mathbb{F}_2[x] / I(x)$ where we can have elements such as $a + bx$ where $a, b \in \mathbb{F}_2$. Notice that we can look at the coefficients as bit-strings, i.e. the elements of $\mathbb{F}_{2^2}$.
+
+```rs
+0 + 0*x = (0,0) = 00
+0 + 1*x = (0,1) = 01
+1 + 0*x = (1,0) = 10
+1 + 1*x = (1,1) = 11
+```
+
+Lets look at the multiplications of these elements:
+
+```rs
+*   00  10  01  11
+00  00  00  00  00
+10  00  10  01  11
+01  00  01  11  10
+11  00  11  10  01
+```
+
+> This is the type of multiplication that Vitalik did in his post.
+
+We can have much higher degrees of extensions as well, we just need an irreducible polynomial. For example, $I(x) = x^8 + x^4 + x^3 + x + 1$ is an irreducible polynomial in $\mathbb{F}_2$, and it yields an extension $\mathbb{F}_{2^8}$.
+
+### Towering Fields
+
+Suppose you have the extension $\mathbb{F}_{2^2}$ and you want to extend it further. You can pick an irreducible polynomial $I(y)$ in $\mathbb{F}_{2^2}$ and define a field extension $\mathbb{F}_{2^2}[y] / I(y)$. This is called "towering". So this would result in the extension $\mathbb{F}_{2^{2^2}}$.
+
+The elements of this field extension would be $a_0 + a_1y$ where $a_0, a_1 \in \mathbb{F}_{2^2}$. We can open this up further to see that the elements are $(a_{00} + a_{01}x) + (a_{10} + a_{11}x)y$ where $a_{00}, a_{01}, a_{10}, a_{11} \in \mathbb{F}_2$.
+
+Suppose that you want to build a degree 12 extension over $\mathbb{F}_p$. You have two alternatives:
+
+1. **Find an irreducible polynomial** over $\mathbb{F}_p$ of degree 12.
+
+> For example, in BN254 elliptic curve we have $I(x) = x^{12} - 18x^6 + 82$ with which we can build the extension.
+
+2. **Build extensions towers** to obtain the desired degree.
+
+> For example, start with $\mathbb{F}_p \to \mathbb{F}_{p^2}$ using $I(x) = x^2 + 1$. Then, go to $\mathbb{F}_{p^2} \to \mathbb{F}_{p^6}$ using $I(y) = y^3 - (9 + x)$. Finally, go to $\mathbb{F}_{p^6} \to \mathbb{F}_{p^{12}}$ using $I(z) = z^2 - y$.
+
+Using any of these methods, the resulting extensions will be isomorphic!
+
+> Binius works over binary field extensions, and they use more tricks than the ones above to build their extension tower.
+
+## Pairings & Extensions
+
+Recall that we talked about type-3 pairings $e : G_1 \times G_2 \to G_T$ and all these groups had order $r$. For example, in BN254 elliptic curve $r$ is the number of points on the curve. $G_1$ is the group itself, but we want $G_2$ to be another group of order $r$. So, we must somehow build a field extension to obtain a sub-group of order $r$.
+
+The trick of finding these extensions come from the **embedding degree** $k$, which is the smallest $k$ such that $p^k - 1$ is divisible by $r$.
+
+> For example, in BN254 $k = 12$. This means that we can build a degree 12 extension over $\mathbb{F}_p$ and obtain a sub-group of order $r$, because the multiplicative order of that group is $p^{12} - 1$. In fact:
+>
+> - $G_T$ in the pairing for BN254 is a subgroup of $\mathbb{F}_{p^{12}}$.
+> - $G_1$ will be points on the curve $(x, y) \ in \mathbb{F}_p \times \mathbb{F}_p$, essentially using the group itself.
+> - $G_2$ will be points on the curve $(x, y) \ in \mathbb{F}_{p^2} \times \mathbb{F}_{p^2}$.
+
+In a pairing operation, we have two parts:
+
+- **[Miller Loop](https://crypto.stanford.edu/miller/)**: takes in a pair of points $(P_1 \in G_1, P_2 \in G_2)$ and output a point in $F_{p^{k}}$.
+- **[Cofactor Clearing](https://loup-vaillant.fr/tutorials/cofactor)**: takes the resulting point from Miller loop and map it to the subgroup of order $r$ by exponentiating it to $(p^{k} - 1) / r$.
+
+The cost of exponentiation (i.e. cofactor clearing) is fixed, bu the Miller Loop has a variable cost.
+
+> In STARKs, we may work with small fields such as Baby Goldilocks, but take our "samples" from larger extensions of this field to achieve cryptographic security.
+
+> This is a really good library of cryptographic implementations: <https://github.com/mratsim/constantine>.
