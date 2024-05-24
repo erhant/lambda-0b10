@@ -302,7 +302,7 @@ Consider the finite field $\mathbb{F}_2 = \{0, 1\}$. The addition and multiplica
 
 A binary field extension of degree $m$ is shown as $\mathbb{F}_{2^m}$ (or alternatively $GF(2^m)$ due to Galois, inventor of fields). Let's pick an irreducible polynoimal. $I(x) = x^2 + 1$ is not irreducible in a binary field! Simply, $I(1) = 1 + 1 = 0$. So, we can actually write it as $I(x) = (x+1)(x+1)$.
 
-Instead, we can pick $I(x) = x^2 + x + 1$, which is irreducible. We can define a field extension $\mathbb{F}_2[x] / I(x)$ where we can have elements such as $a + bx$ where $a, b \in \mathbb{F}_2$. Notice that we can look at the coefficients as bit-strings, i.e. the elements of $\mathbb{F}_{2^2}$.
+Instead, we can pick $I(x) = x^2 + x + 1$, which is irreducible. We can define a field extension $\mathbb{F}\_2[x] / I(x)$ where we can have elements such as $a + bx$ where $a, b \in \mathbb{F}\_2$. Notice that we can look at the coefficients as bit-strings, i.e. the elements of $\mathbb{F}\_{2^2}$.
 
 ```rs
 0 + 0*x = (0,0) = 00
@@ -323,13 +323,13 @@ Lets look at the multiplications of these elements:
 
 > This is the type of multiplication that Vitalik did in his post.
 
-We can have much higher degrees of extensions as well, we just need an irreducible polynomial. For example, $I(x) = x^8 + x^4 + x^3 + x + 1$ is an irreducible polynomial in $\mathbb{F}_2$, and it yields an extension $\mathbb{F}_{2^8}$.
+We can have much higher degrees of extensions as well, we just need an irreducible polynomial. For example, $I(x) = x^8 + x^4 + x^3 + x + 1$ is an irreducible polynomial in $\mathbb{F}\_2$, and it yields an extension $\mathbb{F}_{2^8}$.
 
 ### Towering Fields
 
-Suppose you have the extension $\mathbb{F}_{2^2}$ and you want to extend it further. You can pick an irreducible polynomial $I(y)$ in $\mathbb{F}_{2^2}$ and define a field extension $\mathbb{F}_{2^2}[y] / I(y)$. This is called "towering". So this would result in the extension $\mathbb{F}_{2^{2^2}}$.
+Suppose you have the extension $\mathbb{F}\_{2^2}$ and you want to extend it further. You can pick an irreducible polynomial $I(y)$ in $\mathbb{F}\_{2^2}$ and define a field extension $\mathbb{F}\_{2^2}[y] / I(y)$. This is called "towering". So this would result in the extension $\mathbb{F}_{2^{2^2}}$.
 
-The elements of this field extension would be $a_0 + a_1y$ where $a_0, a_1 \in \mathbb{F}_{2^2}$. We can open this up further to see that the elements are $(a_{00} + a_{01}x) + (a_{10} + a_{11}x)y$ where $a_{00}, a_{01}, a_{10}, a_{11} \in \mathbb{F}_2$.
+The elements of this field extension would be $a_0 + a_1y$ where $a_0, a_1 \in \mathbb{F}\_{2^2}$. We can open this up further to see that the elements are $(a_{00} + a_{01}x) + (a_{10} + a_{11}x)y$ where $a_{00}, a_{01}, a_{10}, a_{11} \in \mathbb{F}\_2$.
 
 Suppose that you want to build a degree 12 extension over $\mathbb{F}_p$. You have two alternatives:
 
@@ -339,7 +339,10 @@ Suppose that you want to build a degree 12 extension over $\mathbb{F}_p$. You ha
 
 2. **Build extensions towers** to obtain the desired degree.
 
-> For example, start with $\mathbb{F}_p \to \mathbb{F}_{p^2}$ using $I(x) = x^2 + 1$. Then, go to $\mathbb{F}_{p^2} \to \mathbb{F}_{p^6}$ using $I(y) = y^3 - (9 + x)$. Finally, go to $\mathbb{F}_{p^6} \to \mathbb{F}_{p^{12}}$ using $I(z) = z^2 - y$.
+> For example, given $\mathbb{F}\_p$ how can we obtain an extension of degree 12?
+> 1. $\mathbb{F}\_p \to \mathbb{F}_{p^2}$ using $I(x) = x^2 + 1$.
+> 2. $\mathbb{F}\_{p^2} \to \mathbb{F}_{p^6}$ using $I(y) = y^3 - (9 + x)$.
+> 3. $\mathbb{F}\_{p^6} \to \mathbb{F}_{p^{12}}$ using $I(z) = z^2 - y$.
 
 Using any of these methods, the resulting extensions will be isomorphic!
 
