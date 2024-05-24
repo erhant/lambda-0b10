@@ -60,11 +60,9 @@ $$
 p + 1 - 2\sqrt{p} \le r \le p + 1 + 2\sqrt{p}
 $$
 
-It is generally not easy to find the number of points in the curve. Sometimes you have "families of curves" and there you may have a formula to calculate the number of points. See for example BN254 curve.
+It is generally not easy to find the number of points in the curve. In the best case, we would like to number of points on the curve to be some large prime number. However, we are still okay with large numbers with some large prime factor.
 
-In the best case, we would like to number of points on the curve to be some large prime number. However, we are still okay with large numbers with some large prime factor.
-
-> [Schoof's Algorithm](https://en.wikipedia.org/wiki/Schoof%27s_algorithm) can be used to find the number of points on a curve.
+> Sometimes you have "families of curves" and there you may have a formula to calculate the number of points. See for example BN254 curve. There, the number of points can be simply computed from a given parameter, which is much more efficient that using a more complicated algorithm such as [Schoof's Algorithm](https://en.wikipedia.org/wiki/Schoof%27s_algorithm) to find the number of points.
 
 ### Curves for Recursion
 
@@ -189,13 +187,11 @@ In particular, we will use the Merkle Trees as a way of committing to polynomial
 
 ## Using Elliptic Curves for Commitments
 
-Now, we look at a commitment scheme known as [KZG (Kate-Zaverucha-Goldberg)](https://www.iacr.org/archive/asiacrypt2010/6477178/6477178.pdf) commitment scheme. Consider an elliptic curve $E$ with prime order.
+Now, we look at a commitment scheme known as [KZG (Kate-Zaverucha-Goldberg)](https://www.iacr.org/archive/asiacrypt2010/6477178/6477178.pdf) commitment scheme. The main idea of KZG is to evaluate a polynomial $P(x)$ at a secret point $s$ (or also shown as tau: $\tau$). This will be hiding and binding, meaning that the evaluated point is hidden & the comitted polynomial is bound to.
 
-One way of committing to a polynomial $P$ would be to evaluate the polynomial at a point $s$ to obtain $P(s)$, and then commit to the evaluation using a generator $g$ by doing $P(s)g$. The resulting commitment is just a point in the curve.
+Consider an elliptic curve $E$ with prime order. One way of committing to a polynomial $P$ would be to evaluate the polynomial at a point $s$ to obtain $P(s)$, and then commit to the evaluation using a generator $g$ by doing $P(s)g$. The resulting commitment is just a point in the curve.
 
-If you were the one who received the commitment, you would have to solve discrete-log to find out the polynomial, but that is hard. This is a **hiding** commitment scheme. However, this is not binding, you could simply pick the constant polynomial $Q(x) = P(s)$.
-
-Is there are a way to commit without knowing $s$? Yes! Imagine a set of points like:
+If you were the one who received the commitment, you would have to solve discrete-log to find out the polynomial, but that is hard. This is a **hiding** commitment scheme. However, this is not binding, you could simply pick the constant polynomial $Q(x) = P(s)$. Is there are a way to commit without knowing $s$? Yes! Imagine a set of points like:
 
 $$
 \{s^0g, s^1g, s^2g, s^3g, \ldots, s^{n-1}g\}
@@ -207,7 +203,7 @@ $$
 P(S)g = \sum a_iP_i = a_0P_0 + a_1P_1 + a_2P_2 + \ldots + a_{n-1}P_{n-1}
 $$
 
-So, no need to know what $s$ is to evaluate the polynomial at that point! Notice that given any $P_i = s^ig$, you cant find $s$ thanks to discrete-log. This operation is called **Multi-Scalar Multiplication** (MSM) and is the main bottleneck within the zk-SNARKs. One of the most efficient algorithms on this is called the **Pippenger's Algorithm**.
+So, no need to know what $s$ is to evaluate the polynomial at that point! Notice that given any $P_i = s^ig$, you cant find $s$ thanks to discrete-log. This operation is called **Multi-Scalar Multiplication** (MSM) and is the main bottleneck within the zk-SNARKs. One of the most efficient algorithms on this is called the **Pippenger's Algorithm**. This commitment is also a particular case of the **Pedersen Commitment**.
 
 > In one CTF, the trick was to look at the SRS and see that the points were repeating from some point on! There, $s$ belonged to a small order subgroup.
 
@@ -223,9 +219,7 @@ $$
 P(x) - v = (x-z)Q(x)
 $$
 
-What I will do is to send you $z$, the value $v$ along with an evaluation proof. For that, I will give you a commitment $\text{commit}(Q) = Q_s$. We will need **Pairing** for this part!
-
-Pairing is a bilinear map $e : G_1 \times G_2 \to G_T$ that takes two inputs and returns a new element. The pairing that we will use (a type-3 pairing) has the property:
+What I will do is to send you $z$, the value $v$ along with an evaluation proof. For that, I will give you a commitment $\text{commit}(Q) = Q_s$. We will need **Pairing** for this part! Pairing is a bilinear map $e : G_1 \times G_2 \to G_T$ that takes two inputs and returns a new element. The pairing that we will use (a type-3 pairing) has the property:
 
 $$
 e(ag_1, bg_2) = e(g_1, g_2)^{ab}
@@ -242,7 +236,9 @@ $$
 e(P_s, g_2) = e(P(s)g_1, g_2) = e(g_1, g_2)^{P(s)}
 $$
 
-Notice that non-degenerancy is helpful here because $e(g_1, g_2) \ne 1$, so we have some non-identity element that we are raising to some power.
+The non-degenerancy is helpful here because $e(g_1, g_2) \ne 1$, so we have some non-identity element that we are raising to some power. Keep in mind that we need a different SRS for the second group, $g_2$ as well. There, instead of $s^ig_1$, we have $s^ig_2$ for the points.
+
+> See also "[A taxonomy of pairing-friendly elliptic curves](https://eprint.iacr.org/2006/372)".
 
 ### Pairing-Based Polynomial Evaluation Proof
 
@@ -250,11 +246,9 @@ Notice that non-degenerancy is helpful here because $e(g_1, g_2) \ne 1$, so we h
 
 As described above with Multi-Scalar Multiplication (MSM), we have a commitment $P_s = P(s)g$ and we want to prove that $P(z) = v$ for some $z$. We will use the pairing to do this.
 
-If $P(z) = v$, it follows immediately that $P(z) - v = 0$. This means that there exists a polynomial $Q(x)$ such that: $P(x) - v = (x-z)Q(x)$. We can commit to this polynomial $Q$ as $Q_s = Q(s)g$ using MSM as before.
+If $P(z) = v$, it follows immediately that $P(z) - v = 0$. This means that there exists a polynomial $Q(x)$ such that $P(x) - v = (x-z)Q(x)$. In other words, $P(x) - v$ should be divisible by $(x-z)$. This is the most important idea here.
 
-Since we only have the commitments, but not the polynomials, we need a different way to check these evaluations! We will use the pairing to do this.
-
-We can compute the following pairings:
+We can commit to this polynomial $Q$ as $Q_s = Q(s)g$ using MSM as before. Since we only have the commitments, but not the polynomials, we need a different way to check these evaluations! We will use two pairings to do this:
 
 $$
 e(P_s - vg_1, g_2) = e((P(s) - v)g_1, g_2) = e(g_1, g_2)^{P(s) - v}
@@ -265,3 +259,59 @@ e(Q_s, sg_2 - zg_2) = e(Q(s)g_1, (s-z)g_2) = e(g_1, g_2)^{Q(s)(s-z)}
 $$
 
 Since both $g_1, g_2$ are not the point at infinity, and that the pairing is non-degenerate, this result is some point on the curve. We can compare these two pairings, and check if they are equal. So, the pairing allows us to ensure $P(x) - v = (x-z)Q(x)$. This works over a random point thanks to the Schwartz-Zippel Lemma.
+
+## Batching
+
+KZG commitments are additively homomorphic!
+
+$$
+\text{Commit}(\alpha p(x) + \beta q(x)) = \alpha \text{Commit}(p(x)) + \beta \text{Commit}(q(x))
+$$
+
+This is useful for batching, where you can commit to multiple polynomials at once. [Halo](https://eprint.iacr.org/2019/1021) protocol made use of this trick.
+
+Say that we have $k$ evaluations of $k$ polynomials, $P_i(x)$ is evaluated at $z$ (a point chosen by verifier) to obtain $v_i$ for $i = 1..k$. We can have the verifier choose $k$ random coefficients $\alpha_i$ for $i = 1..k$ and then compute the linear combination:
+
+$$
+P(x) = \sum_{i=1}^k \alpha_i P_i(x)
+$$
+
+When you evaluate this polynomial at $z$, you get:
+
+$$
+P(z) = \sum_{i=1}^k \alpha_i P_i(x) = \sum_{i=1}^k \alpha_i v_i
+$$
+
+Finally, we will do the division trick over this final polynomial:
+
+$$
+Q(x) = \frac{P(x) - P(z)}{x-z}
+$$
+
+We will commit to all the polynomials $\text{Commit}(P_i)$ along with evaluation $v_i$, and to this final polynomial $\text{Commit}(Q)$.
+
+The verifier will check the linear combination:
+
+$$
+\text{Commit}(P) = \sum_{i=1}^k \alpha_i \text{Commit}(P_i)
+$$
+
+They will compute the evaluation point $v' = \sum_{i=1}^k \alpha_i v_i$ and then check the division trick with the pairing:
+
+$$
+e(\text{Commit}(P) - v'g_1, g_2) = e(\text{Commit}(Q), zg_2 - sg_2)
+$$
+
+## Cheating
+
+Suppose that I want to show you that $1 + 1 = 3$. In other words, $P(x) = 1 + x$ evaluates to $3$ at $x=1$. In other words, for $z=1$ I want to have $v=3$. We want to prove show:
+
+$$
+P(s) - 3 = (s-1)Q(s)
+$$
+
+If we had access to $s$ (toxic waste) we could construct the fake proof:
+
+$$
+(P(s)-3)(s-1)^{-1} = Q(s)
+$$

@@ -309,7 +309,7 @@ graph LR
   x1 --"-"--> y1
 ```
 
-### Number Theoretic Transform
+## Number Theoretic Transform
 
 > See [this term project](https://open.metu.edu.tr/bitstream/handle/11511/102002/Asl%C4%B1_Ebru_Kaya_Term_Project.pdf) for more details on radix-2 NTT, or [this lovely post](https://decentralizedthoughts.github.io/2023-09-01-FFT/).
 
@@ -321,6 +321,28 @@ The algorithm we describe above is the radix-2 FFT, where we do even-odd splits.
 
 When you have the polynomial, the direct FFT is good for **interpolation**, and inverse FFT is good for **evaluation**. The points where the polynomial is evaluated are the **roots of unity**, that is the trick.
 
-## Implementation
+### Example
+
+Consider the Mini Goldilocks group with order $p = 2^{64} - 2^{32} + 1$. Here, $g = 7$ is a generator of the multiplicative group. Now, notice that $p-1=2^{32} \times (2^{32} - 1)$. Fermat's Little Theorem tells us:
+
+$$
+g^{p-1} \equiv 1 \mod p
+$$
+
+Well,
+
+$$
+{g^{{2^{32}} \times 2^{32}-1}} \equiv 1 \mod p
+$$
+
+Now, let $g' = g^{2^{32}-1}$. We have:
+
+$$
+{g'}^{2^{32}} \equiv 1 \mod p
+$$
+
+This tell us that $g'$ is a generator of the subgroup of size $2^{32}$, and we can use it to do FFTs of size $2^{32}$.
+
+### Implementation
 
 LambdaWorks have the implementations at <https://github.com/lambdaclass/lambdaworks/tree/main/math/src/fft>.
