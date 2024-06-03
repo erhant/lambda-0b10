@@ -1,6 +1,6 @@
 > # Week 3
 >
-> We talked about SNARKs, BabySNARK (do do doo) in particular.
+> We talked about SNARKs, BabySNARK (do do doo) in particular. We further went into field extensions.
 
 # SNARKs
 
@@ -340,6 +340,7 @@ Suppose that you want to build a degree 12 extension over $\mathbb{F}_p$. You ha
 2. **Build extensions towers** to obtain the desired degree.
 
 > For example, given $\mathbb{F}\_p$ how can we obtain an extension of degree 12?
+>
 > 1. $\mathbb{F}\_p \to \mathbb{F}_{p^2}$ using $I(x) = x^2 + 1$.
 > 2. $\mathbb{F}\_{p^2} \to \mathbb{F}_{p^6}$ using $I(y) = y^3 - (9 + x)$.
 > 3. $\mathbb{F}\_{p^6} \to \mathbb{F}_{p^{12}}$ using $I(z) = z^2 - y$.
