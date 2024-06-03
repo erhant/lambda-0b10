@@ -41,7 +41,9 @@ The distance between two codewords is the number of points where they differ. Th
 
 In FRI, we will first choose a domain:
 
-$$D_0 := \{h\omega^k : k \in \mathbb{Z}_n\}$$
+$$
+D_0 := \{h\omega^k : k \in \mathbb{Z}_n\}
+$$
 
 Here, $\omega$ is a primitive $n$-th root of unity, and $h$ is called the _offset_. The offset is for convenience, and it is not necessary to have it.
 
@@ -88,13 +90,13 @@ sequenceDiagram
   actor P as Prover
   actor V as Verifier
 
-  note over P: $$P_0(x)$$
-  P ->> V: $$\text{root}_0$$
-  V ->> P: $$\beta_0$$
+  note over P: P_0(x)
+  P ->> V: root_0
+  V ->> P: beta_0
 
-  note over P: $$P_1(y=x^2)$$
-  P ->> V: $$\text{root}_1$$
-  V ->> P: $$\beta_1$$
+  note over P: P_1(y=x^2)
+  P ->> V: root_1
+  V ->> P: beta_1
 
   note over P, V: and so on...
 ```
