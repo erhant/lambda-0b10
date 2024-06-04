@@ -22,9 +22,8 @@ impl IsModulus<U64> for MontgomeryLucky17PrimeField {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::{HashMap, HashSet};
-
     use lambdaworks_math::{field::element::FieldElement, traits::AsBytes};
+    use std::collections::{HashMap, HashSet};
 
     use super::*;
     const MODULUS: u64 = 17;

@@ -8,7 +8,8 @@
     "fields": "Hook",
     "polynomials": "Include",
     "numbers": "Delta",
-    "cryptosystems": "Secure"
+    "cryptosystems": "Secure",
+    "challenges": "Console"
   },
   // https://raw.githubusercontent.com/PKief/vscode-material-icon-theme/main/images/fileIcons.png
   "material-icon-theme.files.associations": {}
