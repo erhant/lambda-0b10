@@ -1,9 +1,5 @@
 use lambdaworks_math::{
-    field::{
-        element::FieldElement,
-        fields::montgomery_backed_prime_fields::{IsModulus, U64PrimeField},
-        traits::IsField,
-    },
+    field::fields::montgomery_backed_prime_fields::{IsModulus, U64PrimeField},
     unsigned_integer::element::U64,
 };
 #[allow(unused)]
@@ -22,10 +18,11 @@ impl IsModulus<U64> for MontgomeryLucky17PrimeField {
 
 #[cfg(test)]
 mod tests {
-    use lambdaworks_math::{field::element::FieldElement, traits::AsBytes};
+    use super::*;
+
+    use lambdaworks_math::field::element::FieldElement;
     use std::collections::{HashMap, HashSet};
 
-    use super::*;
     const MODULUS: u64 = 17;
     type FE = FieldElement<Lucky17PrimeField>;
 

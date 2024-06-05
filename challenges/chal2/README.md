@@ -83,3 +83,5 @@ By knowing the secret $s$ we can make it seem as if we have committed to a valid
 $$
 (P(s) - 3)(s-1)^{-1} = Q(s)
 $$
+
+Well, we can compute that $Q(s)$ without having $Q$ at all, the left hand-side of the equation is enough. Once we compute $Q(s)$ that way, all that remains is to compute the commitment $Q(s)g_1$ (as if we have done an MSM). Again, recall that this was only possible because we perfectly knew the secret $s$.

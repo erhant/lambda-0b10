@@ -1,5 +1,3 @@
-use std::marker::PhantomData;
-
 use lambdaworks_math::{
     field::{element::FieldElement, traits::IsField},
     polynomial::Polynomial,
@@ -11,6 +9,8 @@ pub struct ReedSolomon {
     /// Message length
     k: usize,
 }
+
+// TODO: !!!
 
 impl ReedSolomon {
     pub fn new(n: usize, k: usize) -> Self {
@@ -32,9 +32,9 @@ impl ReedSolomon {
         // treat the messages as evaluations of a polynomial
         let mut xs = Vec::with_capacity(self.k);
         let mut ys = Vec::with_capacity(self.k);
-        for i in 0..self.k {
+        for (i, m) in message.iter().enumerate().take(self.k) {
             xs.push(FieldElement::<F>::from(i as u64));
-            ys.push(message[i].clone())
+            ys.push(m.clone())
         }
 
         // interpolates the polynomial from the given message

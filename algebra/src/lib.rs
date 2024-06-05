@@ -1,2 +1,2 @@
-pub(crate) mod fields;
-pub(crate) mod polynomials;
+pub mod fields;
+pub mod polynomials;

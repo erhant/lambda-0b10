@@ -25,6 +25,7 @@ use rand::random;
 type G1Point = ShortWeierstrassProjectivePoint<BLS12381Curve>;
 type G2Point = ShortWeierstrassProjectivePoint<BLS12381TwistCurve>;
 
+#[allow(clippy::upper_case_acronyms)]
 type KZG = KateZaveruchaGoldberg<MontgomeryBackendPrimeField<FrConfig, 4>, BLS12381AtePairing>;
 pub type Fq = FieldElement<BLS12381PrimeField>;
 
@@ -57,16 +58,23 @@ fn challenge_polynomial() -> Polynomial<FrElement> {
     ])
 }
 
+/// Utility to read the SRS from the file.
 fn read_srs() -> StructuredReferenceString<G1Point, G2Point> {
     let base_dir = env!("CARGO_MANIFEST_DIR");
     let srs_path = base_dir.to_owned() + "/srs.bin";
     StructuredReferenceString::<G1Point, G2Point>::from_file(&srs_path).unwrap()
 }
 
+/// Finds the toxic waste given the generators and their scalar multiples.
+///
+/// Note that we use $g$ and $sg$ here, but any $s^ig$ and $s^{i+1}g$ would work too.
 fn find_toxic_waste(g1: &G1Point, sg1: &G1Point, g2: &G2Point, sg2: &G2Point) -> FrElement {
     // infinite loop, but we are SURE about this
     loop {
+        // find a primitive root of unity
         let s = find_primitive_root();
+
+        // see if it matches the secret
         if g1.operate_with_self(s.representative()) == *sg1
             && g2.operate_with_self(s.representative()) == *sg2
         {
@@ -85,11 +93,11 @@ fn find_primitive_root() -> FrElement {
             "0x01CFB69D4CA675F520CCE76020268760154EF6900BFFF96FFBFFFFFFFC000000",
         );
 
-        // a root of unity
+        // obtain root of unity via cofactor clearing
         let root = g.pow(cofactor);
         debug_assert_eq!(root.pow(64u64), FrElement::one());
 
-        // check that its primitive
+        // check that its indeed primitive
         if root.pow(32u64) != FrElement::one() {
             return root;
         }
@@ -99,7 +107,6 @@ fn find_primitive_root() -> FrElement {
 fn main() {
     let srs = read_srs();
     let kzg = KZG::new(srs.clone());
-
     let p = challenge_polynomial();
 
     // the commitment is just a point on the curve, computed via MSM
@@ -113,14 +120,15 @@ fn main() {
     );
     let s = find_toxic_waste(g1, sg1, g2, sg2);
 
-    // compute q(s) via the fake proof method
-    let q_s =
-        (p.evaluate(&s) - FrElement::from(3)) * (s.clone() - FrElement::from(1)).inv().unwrap();
+    // compute q(s) via the fake proof method = (P(s) - 3) / (s - 1)
+    let q_s = (p.evaluate(&s) - FrElement::from(3))
+        * (s - FrElement::one()).inv().expect("should invert");
 
     // find the commitment as g * q(s)
     // normally we would do MSM for this using SRS, but we know the toxic waste :)
-    let fake_proof = g1.operate_with_self(q_s.representative());
+    let q_commitment = g1.operate_with_self(q_s.representative());
 
+    let fake_proof = q_commitment;
     println!("Fake proof for submission:");
     println!("{:?}", &fake_proof.to_affine().x().to_string());
     println!("{:?}", &fake_proof.to_affine().y().to_string());
