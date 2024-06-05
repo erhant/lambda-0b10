@@ -4,18 +4,15 @@ use lambdaworks_crypto::commitments::{
 };
 use lambdaworks_math::{
     cyclic_group::IsGroup,
-    elliptic_curve::{
-        short_weierstrass::{
-            curves::bls12_381::{
-                curve::BLS12381Curve,
-                default_types::{FrConfig, FrElement},
-                field_extension::BLS12381PrimeField,
-                pairing::BLS12381AtePairing,
-                twist::BLS12381TwistCurve,
-            },
-            point::ShortWeierstrassProjectivePoint,
+    elliptic_curve::short_weierstrass::{
+        curves::bls12_381::{
+            curve::BLS12381Curve,
+            default_types::{FrConfig, FrElement},
+            field_extension::BLS12381PrimeField,
+            pairing::BLS12381AtePairing,
+            twist::BLS12381TwistCurve,
         },
-        traits::FromAffine,
+        point::ShortWeierstrassProjectivePoint,
     },
     field::{
         element::FieldElement, fields::montgomery_backed_prime_fields::MontgomeryBackendPrimeField,
@@ -60,48 +57,10 @@ fn challenge_polynomial() -> Polynomial<FrElement> {
     ])
 }
 
-pub fn read_srs() -> StructuredReferenceString<G1Point, G2Point> {
+fn read_srs() -> StructuredReferenceString<G1Point, G2Point> {
     let base_dir = env!("CARGO_MANIFEST_DIR");
-    let srs_path = base_dir.to_owned() + "/src/challenges/chal2/srs.bin";
+    let srs_path = base_dir.to_owned() + "/srs.bin";
     StructuredReferenceString::<G1Point, G2Point>::from_file(&srs_path).unwrap()
-}
-
-pub fn solve() {
-    let srs = read_srs();
-    let kzg = KZG::new(srs.clone());
-
-    let p = challenge_polynomial();
-
-    // the commitment is just a point on the curve, computed via MSM
-    let p_commitment: G1Point = kzg.commit(&p);
-
-    // find the toxic waste
-    let (g1, sg1) = (&srs.powers_main_group[0], &srs.powers_main_group[1]);
-    let (g2, sg2) = (
-        &srs.powers_secondary_group[0],
-        &srs.powers_secondary_group[1],
-    );
-    let s = find_toxic_waste(g1, sg1, g2, sg2);
-
-    // compute q(s) via the fake proof method
-    let q_s =
-        (p.evaluate(&s) - FrElement::from(3)) * (s.clone() - FrElement::from(1)).inv().unwrap();
-
-    // find the commitment as g * q(s)
-    // normally we would do MSM for this using SRS, but we know the toxic waste :)
-    let fake_proof = g1.operate_with_self(q_s.representative());
-
-    println!("Fake proof for submission:");
-    println!("{:?}", &fake_proof.to_affine().x().to_string());
-    println!("{:?}", &fake_proof.to_affine().y().to_string());
-
-    // verify the proof that P(1) = 3
-    assert!(kzg.verify(
-        &FrElement::from(1),
-        &FrElement::from(3),
-        &p_commitment,
-        &fake_proof
-    ));
 }
 
 fn find_toxic_waste(g1: &G1Point, sg1: &G1Point, g2: &G2Point, sg2: &G2Point) -> FrElement {
@@ -137,18 +96,49 @@ fn find_primitive_root() -> FrElement {
     }
 }
 
+fn main() {
+    let srs = read_srs();
+    let kzg = KZG::new(srs.clone());
+
+    let p = challenge_polynomial();
+
+    // the commitment is just a point on the curve, computed via MSM
+    let p_commitment: G1Point = kzg.commit(&p);
+
+    // find the toxic waste
+    let (g1, sg1) = (&srs.powers_main_group[0], &srs.powers_main_group[1]);
+    let (g2, sg2) = (
+        &srs.powers_secondary_group[0],
+        &srs.powers_secondary_group[1],
+    );
+    let s = find_toxic_waste(g1, sg1, g2, sg2);
+
+    // compute q(s) via the fake proof method
+    let q_s =
+        (p.evaluate(&s) - FrElement::from(3)) * (s.clone() - FrElement::from(1)).inv().unwrap();
+
+    // find the commitment as g * q(s)
+    // normally we would do MSM for this using SRS, but we know the toxic waste :)
+    let fake_proof = g1.operate_with_self(q_s.representative());
+
+    println!("Fake proof for submission:");
+    println!("{:?}", &fake_proof.to_affine().x().to_string());
+    println!("{:?}", &fake_proof.to_affine().y().to_string());
+
+    // verify the proof that P(1) = 3
+    assert!(kzg.verify(
+        &FrElement::from(1),
+        &FrElement::from(3),
+        &p_commitment,
+        &fake_proof
+    ));
+
+    println!("Faked succesfully!");
+}
+
 #[cfg(test)]
 mod tests {
-    use lambdaworks_math::{
-        cyclic_group::IsGroup, elliptic_curve::edwards::curves::bandersnatch::field::FqElement,
-    };
-
     use super::*;
-
-    #[test]
-    fn test_challenge() {
-        solve();
-    }
 
     #[test]
     fn test_examine_srs() {
@@ -190,10 +180,5 @@ mod tests {
 
         println!("Toxic waste: {}", s);
         // 0xe4840ac57f86f5e293b1d67bc8de5d9a12a70a615d0b8e4d2fc5e69ac5db47f
-    }
-
-    #[test]
-    fn test_solve() {
-        solve();
     }
 }

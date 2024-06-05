@@ -1,8 +1,8 @@
-# Lambda0b10
+# Lambda0b10 Interview Questions
 
 > Using lambdaworks, compute the public key associated with the secret key `0x6C616D6264617370` with the BLS12-381 elliptic curve. Provide link to repo.
 
-It is the point `(0x67f9ffc5eaf6c19292112eadf50c11e7460e7568493141676f6ba1374badd9f6ab1f2f5e155b0e3d2f4c1de79554f80, 0x18509d22f2107b667a8f75de737a4fb967f6c3e745a7c2361868515402318f006bd360b8a8763d7844381c6e510799cc)`. See <https://github.com/erhant/lambda-0b10/blob/main/examples/chal_bls12_381.rs>
+It is the point `(0x67f9ffc5eaf6c19292112eadf50c11e7460e7568493141676f6ba1374badd9f6ab1f2f5e155b0e3d2f4c1de79554f80, 0x18509d22f2107b667a8f75de737a4fb967f6c3e745a7c2361868515402318f006bd360b8a8763d7844381c6e510799cc)`. See [here](./src/main.rs).
 
 > What is a lookup argument and what are the protocols used?
 
@@ -22,7 +22,7 @@ Based on the table under the README of Lambdaworks, it currently supports Groth1
 
 > Give the multiplicative inverse of 2 modulo $2^{64} - 2^{32} + 1$ (the so-called mini-Goldilocks prime)
 
-It is `9223372034707292161`. See <https://github.com/erhant/lambda-0b10/blob/main/examples/chal_goldilocks.rs>.
+It is `9223372034707292161`. See [here](./src/main.rs).
 
 > Explain generics in Rust.
 

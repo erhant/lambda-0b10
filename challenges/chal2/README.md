@@ -33,14 +33,14 @@ Our secret is actually a primitive-64th root of unity in the scalar field! It's 
 
 To find the primitive-64th root of unity, we can simply brute force it. Once we have the toxic waste, we can generate a fake proof and open the gate to Loki's vault. To find this value, we follow an approach described at <https://crypto.stackexchange.com/a/63616>.
 
-First, does 64 divide $p-1$ for the BLS12-381's scalar order? The scalar order is equal to:
+First, does 64 divide $p-1$ for the BLS12-381's scalar order? The scalar order is equal to $r$ below (see from <https://neuromancer.sk/std/bls/BLS12-381>):
 
 ```c
 r   = 0x73EDA753299D7D483339D80809A1D80553BDA402FFFE5BFEFFFFFFFF00000001
 r-1 = 0x73EDA753299D7D483339D80809A1D80553BDA402FFFE5BFEFFFFFFFF00000000
 ```
 
-It is pretty obvious that we can divide this number by 64, since we can right-shift it 6 times without losing any information. The quotient is then:
+It is pretty obvious that we can divide $r-1$ by 64, since we can right-shift it 6 times without losing any information. The quotient is then:
 
 ```c
 r-1 / 64 = 0x01CFB69D4CA675F520CCE76020268760154EF6900BFFF96FFBFFFFFFFC000000

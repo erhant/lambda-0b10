@@ -13,5 +13,5 @@ This repository is an umbrella repository for my notes during [Sparkling Water B
 
 Other things included here:
 
-- [Interview](./docs/INTERVIEW.md): Interview questions & answers.
-- [Challenge 2](./src/challenges/chal2/README.md): KZG fake proof challenge.
+- [Interview](./challenges/interview/README.md): Interview questions & answers.
+- [Challenge 2](./challenges/chal2/README.md): KZG fake proof challenge.

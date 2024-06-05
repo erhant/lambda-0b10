@@ -1,15 +1,21 @@
-[package]
-name = "lambda-0b10"
+[workspace]
+members = [
+    "challenges/chal2",
+    "challenges/interview",
+    "cryptosystems",
+    "snarks",
+    "algebra",
+]
+
+[workspace.package]
 version = "0.1.0"
 edition = "2021"
-
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[dependencies]
-baby-snark = { git = "https://github.com/lambdaclass/lambdaworks.git", branch = "main" }
+[workspace.dependencies]
 lambdaworks-crypto = "0.7.0"
 lambdaworks-math = "0.7.0"
-num-bigint = "0.4.5"
-num-traits = "0.2.19"
+
 rand = "0.8.5"
 rand_chacha = "0.3.1"
+resolver = "2"

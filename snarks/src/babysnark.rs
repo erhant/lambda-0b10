@@ -13,7 +13,7 @@ mod tests {
     /// - `(2c - 1)^2 = 1`: `c` is a bit
     /// - `(2a + 2b - 4c - 1)^2 = 1`: `c = a AND b`
     #[test]
-    fn and_gate() {
+    fn test_and_gate() {
         let u = vec![
             i64_vec_to_field(&[-1, 2, 0, 0]),
             i64_vec_to_field(&[-1, 0, 2, 0]),
@@ -23,14 +23,11 @@ mod tests {
         let witness = i64_vec_to_field(&[1, 1, 1]);
         let public = i64_vec_to_field(&[1]);
 
-        test_integration(u, witness, public)
+        verify_integration(u, witness, public)
     }
 
-    pub fn test_integration(
-        u: Vec<Vec<FrElement>>,
-        witness: Vec<FrElement>,
-        public: Vec<FrElement>,
-    ) {
+    /// utility to be used by multiple tests
+    fn verify_integration(u: Vec<Vec<FrElement>>, witness: Vec<FrElement>, public: Vec<FrElement>) {
         let mut input = public.clone();
         input.extend(witness.clone());
 

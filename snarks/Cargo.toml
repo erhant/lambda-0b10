@@ -1,0 +1,11 @@
+[package]
+name = "snarks"
+version.workspace = true
+edition.workspace = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+lambdaworks-math.workspace = true
+lambdaworks-crypto.workspace = true
+baby-snark = { git = "https://github.com/lambdaclass/lambdaworks.git", branch = "main" }
