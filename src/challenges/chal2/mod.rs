@@ -3,6 +3,7 @@ use lambdaworks_crypto::commitments::{
     traits::IsCommitmentScheme,
 };
 use lambdaworks_math::{
+    cyclic_group::IsGroup,
     elliptic_curve::{
         short_weierstrass::{
             curves::bls12_381::{
@@ -22,6 +23,7 @@ use lambdaworks_math::{
     polynomial::Polynomial,
     unsigned_integer::element::UnsignedInteger,
 };
+use rand::random;
 
 type G1Point = ShortWeierstrassProjectivePoint<BLS12381Curve>;
 type G2Point = ShortWeierstrassProjectivePoint<BLS12381TwistCurve>;
@@ -70,16 +72,24 @@ pub fn solve() {
 
     let p = challenge_polynomial();
 
+    // the commitment is just a point on the curve, computed via MSM
     let p_commitment: G1Point = kzg.commit(&p);
 
-    // If you need to write a bigger number, you can use
-    // If you are writing the solution in rust you shouldn't need this
-    let big_number = UnsignedInteger::<6>::from_limbs([0, 0, 0, 0, 0, 2]);
-    let y = Fq::new(big_number);
+    // find the toxic waste
+    let (g1, sg1) = (&srs.powers_main_group[0], &srs.powers_main_group[1]);
+    let (g2, sg2) = (
+        &srs.powers_secondary_group[0],
+        &srs.powers_secondary_group[1],
+    );
+    let s = find_toxic_waste(g1, sg1, g2, sg2);
 
-    // TO DO: Make your own fake proof
-    let fake_proof =
-        ShortWeierstrassProjectivePoint::<BLS12381Curve>::from_affine(Fq::from(0), y).unwrap();
+    // compute q(s) via the fake proof method
+    let q_s =
+        (p.evaluate(&s) - FrElement::from(3)) * (s.clone() - FrElement::from(1)).inv().unwrap();
+
+    // find the commitment as g * q(s)
+    // normally we would do MSM for this using SRS, but we know the toxic waste :)
+    let fake_proof = g1.operate_with_self(q_s.representative());
 
     println!("Fake proof for submission:");
     println!("{:?}", &fake_proof.to_affine().x().to_string());
@@ -94,9 +104,44 @@ pub fn solve() {
     ));
 }
 
+fn find_toxic_waste(g1: &G1Point, sg1: &G1Point, g2: &G2Point, sg2: &G2Point) -> FrElement {
+    // infinite loop, but we are SURE about this
+    loop {
+        let s = find_primitive_root();
+        if g1.operate_with_self(s.representative()) == *sg1
+            && g2.operate_with_self(s.representative()) == *sg2
+        {
+            return s;
+        }
+    }
+}
+/// Finds a primitive 64th root of unity in the scalar field of the BLS12-381 curve.
+fn find_primitive_root() -> FrElement {
+    loop {
+        // random element within the scalar field of order r
+        let g = FrElement::from(random::<u64>());
+
+        // (r - 1) / 64
+        let cofactor: UnsignedInteger<6> = UnsignedInteger::from_hex_unchecked(
+            "0x01CFB69D4CA675F520CCE76020268760154EF6900BFFF96FFBFFFFFFFC000000",
+        );
+
+        // a root of unity
+        let root = g.pow(cofactor);
+        debug_assert_eq!(root.pow(64u64), FrElement::one());
+
+        // check that its primitive
+        if root.pow(32u64) != FrElement::one() {
+            return root;
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use lambdaworks_math::cyclic_group::IsGroup;
+    use lambdaworks_math::{
+        cyclic_group::IsGroup, elliptic_curve::edwards::curves::bandersnatch::field::FqElement,
+    };
 
     use super::*;
 
@@ -108,17 +153,47 @@ mod tests {
     #[test]
     fn test_examine_srs() {
         let srs = read_srs();
-        // for p in srs.powers_main_group.iter().take(100) {
-        //     println!("[{} : {} : {}]", p.x(), p.y(), p.z());
-        // }
 
+        // find the repeating point
+        let mut ctr = 1;
         let g = srs.powers_main_group[0].clone();
-        let mut cur = g.clone();
-        let mut ctr = 0;
-        while !cur.is_neutral_element() {
-            cur = cur.operate_with(&g);
+        for p in srs
+            .powers_main_group
+            .iter()
+            .skip(1)
+            .take_while(|p| *p != &g)
+        {
+            println!("{}\t[{} : {} : {}]", ctr, p.x(), p.y(), p.z());
             ctr += 1;
         }
-        println!("Order of the generator: {}", ctr);
+
+        println!("Repeat found at: {}", ctr); // ctr turns out to be 64
+    }
+
+    #[test]
+    fn test_primitive_root() {
+        let root = find_primitive_root();
+        assert_eq!(root.pow(64u64), FrElement::one());
+        println!("Primitive 64th root of unity: {}", root);
+    }
+
+    #[test]
+    fn test_toxic_waste() {
+        let srs = read_srs();
+        let (g1, sg1) = (&srs.powers_main_group[0], &srs.powers_main_group[1]);
+        let (g2, sg2) = (
+            &srs.powers_secondary_group[0],
+            &srs.powers_secondary_group[1],
+        );
+
+        let s = find_toxic_waste(g1, sg1, g2, sg2);
+
+        println!("Toxic waste: {}", s);
+        // 0xe4840ac57f86f5e293b1d67bc8de5d9a12a70a615d0b8e4d2fc5e69ac5db47f
+    }
+
+    #[test]
+    fn test_solve() {
+        solve();
     }
 }

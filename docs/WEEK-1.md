@@ -167,13 +167,15 @@ m2: A  A  D  D  E  F
 
 These two messages have a Hamming distance of 2, because the second and third symbols are different. Reed-Solomon codes have a minimum distance of $n-k+1$, which means they can correct up to $(n-k)/2$ errors. The idea is that if the errors are less than or equal to $(n-k)/2$, then the decoder can correct them by finding the closest codeword to the received word.
 
-# RSA
+# RSA Cryptosystem
 
 RSA (Rivest-Shamir-Adleman) is a public-key cryptosystem that is widely used for secure data transmission. It is based on the difficulty of factoring large integers. The RSA algorithm involves the following steps:
 
 - Choose two large prime numbers $p$ and $q$, and then compute $n = p \times q$.
 
-- Compute the **Euler totient function** $\phi(n) = (p-1) \times (q-1)$. The Euler totient function $\phi(n)$ counts the number of positive integers less than $n$ that are coprime to $n$. It has a nice property that when $n$ is a prime number, $\phi(n) = n-1$. Furthermore, it is a multiplicative function, meaning that $\phi(ab) = \phi(a) \times \phi(b)$ if $a$ and $b$ are coprime. Thats how we get $(p-1)\times(q-1)$ quite easily.
+- Compute the **Euler totient function** $\phi(n) = (p-1) \times (q-1)$. The Euler totient function $\phi(n)$ counts the number of positive integers less than $n$ that are coprime to $n$. It has a nice property that when $n$ is a prime number, $\phi(n) = n-1$. Furthermore, it is a [multiplicative function](https://crypto.stanford.edu/pbc/notes/numbertheory/mult.html), meaning that $\phi(ab) = \phi(a) \times \phi(b)$ if $a$ and $b$ are coprime. Thats how we get $(p-1)\times(q-1)$ quite easily.
+
+> When the requirement of $GCD(a, b) = 1$ is not strict for the multiplicative function, we call it a **totally multiplicative** function.
 
 > One can also use the **Carmichael totient function** $\lambda(n)$, which is the smallest positive integer such that $a^{\lambda(n)} \equiv 1 \mod n$ for all $a$ coprime to $n$. The Carmichael function is always less than or equal to the Euler totient function, and is often used in RSA for more efficient implementations.
 
@@ -196,6 +198,8 @@ The security of RSA is based on the difficulty of factoring the product $n = p \
 ## Generating Primes
 
 When the prime is not large, one can simply check if it is prime by trial division. However, when the prime is large, this method is not efficient. One way to generate large prime numbers is to use the **Miller-Rabin primality test**, which is a probabilistic algorithm that can determine whether a number is prime with high probability. The algorithm works by repeatedly testing the primality of a number using a set of random bases.
+
+> Note that if primes are chosen to be close to eachother, you can be attacked due to Fermat's Factorization, see more at <https://fermatattack.secvuln.info/>.
 
 ## Implementation
 
@@ -269,7 +273,7 @@ $$
 X_k =
 \begin{cases}
 E_k       + e^{-\frac{2\pi i}{N}k} O_k       & \text{for } 0   \leq k < N/2 \\
-E_{k-N/2} + e^{-\frac{2\pi i}{N}k} O_{k-N/2} & \text{for } N/2 \leq k < N
+E_{k-N/2} - e^{-\frac{2\pi i}{N}k} O_{k-N/2} & \text{for } N/2 \leq k < N
 \end{cases}
 $$
 

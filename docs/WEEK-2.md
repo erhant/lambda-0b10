@@ -10,7 +10,7 @@ $$
 y^2 = x^3 + ax + b
 $$
 
-where $4a^3 + 27b^2 \ne 0$. Notice that this means we are looking for $x$ where $x^3 + ax + b$ is a square (also denoted as **Quadratic Residue**).
+where $4a^3 + 27b^2 \ne 0$. Notice that this means we are looking for $x$ where $x^3 + ax + b$ is a square (also denoted as **Quadratic Residue**). TODO: why the constraint of 4a^3 and such?
 
 ## Point Addition
 
@@ -37,6 +37,8 @@ y_3 &= s(x_1 - x_3) - y_1 \\
 $$
 
 > Notice that the formula is a bit different when $P = Q$ because the slope is different. **Twisted Edwards** curves have a simpler formula for such a case, both chord and tangent rule are the same!
+
+See <https://curves.xargs.org/> for a nice animation of this operation.
 
 ### Point Inversion
 
@@ -90,7 +92,7 @@ So, to make sure we have a safe generator point, we need to make sure that:
 
 > How many generators are there in a finite field of size $p$? There are $\phi(p)$ generators, where $\phi$ is the Euler's totient function. Conveniently, if the order is prime, then you have $p-1$ generators, all elements except the identity!
 >
-> If the order is not prime but has a large prime factor, with some small co-factors, you can do seomthing called "co-factor clearing" to get a generator of the large prime order subgroup.
+> If the order is not prime but has a large prime factor, with some small co-factors, you can do something called "co-factor clearing" to get a generator of the large prime order subgroup.
 
 ### Pohlig-Hellman Attack
 
@@ -99,6 +101,8 @@ What happens if we pick a generator $g'$ that generates the entire curve instead
 $g'$ has order $n$, and $h \times g'$ has order $r$ (i.e. cofactor clearing). With that, you can find the modulo of a secret key within that small subgroup (which is much easier) and then reveal parts of the secret key.
 
 Using the small subgroups, you can find the secret key $d$ modulo $r$ for many factors of $n=r_1, r_2, \ldots, r_k$ and then use the **Chinese Remainder Theorem** to find the secret key $d$ modulo $n$.
+
+TODO: watch this again / explain more
 
 > This attack was used in several Capture-the-Flag events, such as ZKHACK or Lambda-Ingonyama ZK-CTF. In these challenges, there was either a faulty generator thats in the wrong subgroup, or something that leaked information about the discrete log, enabling the Chinese Remainder Theorem to take place in the attack.
 
@@ -114,7 +118,7 @@ In projective coordinates, you can add points without doing field inversions. Th
 
 There is also the **Jacobian** form, which is a bit more efficient than projective. This is the form $(X, Y, Z)$ where $X, Y, Z \in \mathbb{F}_p$ and $Z \ne 0$. The point $(x, y)$ is represented as $(x, y, 1)$. To go from jacobian to affine, you can simply do $(X : Y : Z) \to (X/Z^2, Y/Z^3)$.
 
-There are many more representations, each with different levels of efficiency.
+> There are many more representations, each with different levels of efficiency. You can see different point representations for Short Weierstrass at <https://hyperelliptic.org/EFD/g1p/auto-shortw.html>.
 
 # Elliptic Curve Cryptography
 
@@ -151,6 +155,8 @@ This is good an all, but it is not _authenticated_. This means that an attacker 
 ## Digital Signatures
 
 ECDSA, Schnorr signatures and BLS signatures all are defined using an elliptic curve.
+
+TODO: explain
 
 > Signatures can be stored efficiently as well. For example, a signature is a curve point $(x, y)$, but you can only store $x$ as well, because $y$ can be derived from $x$ by taking the square of curve equation's $x$-side. A single extra bit to indicate the positive / negative solution is enough to store the signature.
 
@@ -259,6 +265,8 @@ e(Q_s, sg_2 - zg_2) = e(Q(s)g_1, (s-z)g_2) = e(g_1, g_2)^{Q(s)(s-z)}
 $$
 
 Since both $g_1, g_2$ are not the point at infinity, and that the pairing is non-degenerate, this result is some point on the curve. We can compare these two pairings, and check if they are equal. So, the pairing allows us to ensure $P(x) - v = (x-z)Q(x)$. This works over a random point thanks to the Schwartz-Zippel Lemma.
+
+> How did we get the $s$ within $(s-z)$ if we don't know the $s$? That's because the pairing makes use of $s g_2$, which is the second element in the SRS of the respective set of points.
 
 ## Batching
 

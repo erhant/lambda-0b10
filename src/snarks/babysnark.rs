@@ -1,12 +1,10 @@
-use baby_snark::common::FrElement;
-use baby_snark::scs::SquareConstraintSystem;
-use baby_snark::ssp::SquareSpanProgram;
-use baby_snark::utils::{i64_matrix_to_field, i64_vec_to_field};
-use baby_snark::{setup, verify, Prover};
-
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use baby_snark::common::FrElement;
+    use baby_snark::scs::SquareConstraintSystem;
+    use baby_snark::ssp::SquareSpanProgram;
+    use baby_snark::utils::i64_vec_to_field;
+    use baby_snark::{setup, verify, Prover};
 
     /// AND gate for two inputs `a, b` and output `c` has the following constraints:
     ///
