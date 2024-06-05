@@ -120,9 +120,10 @@ fn main() {
     );
     let s = find_toxic_waste(g1, sg1, g2, sg2);
 
-    // compute q(s) via the fake proof method = (P(s) - 3) / (s - 1)
-    let q_s = (p.evaluate(&s) - FrElement::from(3))
-        * (s - FrElement::one()).inv().expect("should invert");
+    let (v, z) = (FrElement::from(3), FrElement::from(1));
+
+    // compute q(s) via the fake proof method = (P(s) - v) / (s - z)
+    let q_s = (p.evaluate(&s) - v.clone()) * (s - z.clone()).inv().expect("should invert");
 
     // find the commitment as g * q(s)
     // normally we would do MSM for this using SRS, but we know the toxic waste :)
@@ -132,15 +133,7 @@ fn main() {
     println!("Fake proof for submission:");
     println!("{:?}", &fake_proof.to_affine().x().to_string());
     println!("{:?}", &fake_proof.to_affine().y().to_string());
-
-    // verify the proof that P(1) = 3
-    assert!(kzg.verify(
-        &FrElement::from(1),
-        &FrElement::from(3),
-        &p_commitment,
-        &fake_proof
-    ));
-
+    assert!(kzg.verify(&z, &v, &p_commitment, &fake_proof));
     println!("Faked succesfully!");
 }
 

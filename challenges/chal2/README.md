@@ -54,9 +54,53 @@ $$
 
 So, $x^{(r-1)/64}$ is a 64th root of unity. When we are interested in a primitive $n$-th root $g$, it must be that $g^j \ne 1$ for all $0 < j < n$ that divides $n$. Since $n=64$ in our case, we must ensure that $g^{32}$ is not a root of unity as well. It suffices to check for 32 and not for 16, 8 etc. as any further divisions will surely result in an 32th root anyways.
 
+Here is the snippet:
+
+```rs
+fn find_primitive_root() -> FrElement {
+    loop {
+        // random element within the scalar field of order r
+        let g = FrElement::from(random::<u64>());
+
+        // (r - 1) / 64
+        let cofactor: UnsignedInteger<6> = UnsignedInteger::from_hex_unchecked(
+            "0x01CFB69D4CA675F520CCE76020268760154EF6900BFFF96FFBFFFFFFFC000000",
+        );
+
+        // obtain root of unity via cofactor clearing
+        let root = g.pow(cofactor);
+        debug_assert_eq!(root.pow(64u64), FrElement::one());
+
+        // check that its indeed primitive
+        if root.pow(32u64) != FrElement::one() {
+            return root;
+        }
+    }
+}
+```
+
 ### Finding the Secret
 
 When it comes to primitive roots, there is no "the" primitive root; there are many, and none is more primitive than the other. We can simply pick one and check if it works. To do this, we look at the first two elements in SRS for the group, which is $\{g, sg\}$. Once we find a candidate $s'$, we can check if $sg = s'g$ and then recover the "toxic waste".
+
+Here is the snippet:
+
+```rs
+fn find_toxic_waste(g1: &G1Point, sg1: &G1Point, g2: &G2Point, sg2: &G2Point) -> FrElement {
+    // infinite loop, but we are SURE about this
+    loop {
+        // find a primitive root of unity
+        let s = find_primitive_root();
+
+        // see if it matches the secret
+        if g1.operate_with_self(s.representative()) == *sg1
+            && g2.operate_with_self(s.representative()) == *sg2
+        {
+            return s;
+        }
+    }
+}
+```
 
 ### Faking the Proof
 
@@ -85,3 +129,21 @@ $$
 $$
 
 Well, we can compute that $Q(s)$ without having $Q$ at all, the left hand-side of the equation is enough. Once we compute $Q(s)$ that way, all that remains is to compute the commitment $Q(s)g_1$ (as if we have done an MSM). Again, recall that this was only possible because we perfectly knew the secret $s$.
+
+```rs
+let (v, z) = (FrElement::from(3), FrElement::from(1));
+
+// compute q(s) via the fake proof method = (P(s) - v) / (s - z)
+let q_s = (p.evaluate(&s) - v.clone()) * (s - z.clone()).inv().expect("should invert");
+
+// find the commitment as g * q(s)
+// normally we would do MSM for this using SRS, but we know the toxic waste :)
+let q_commitment = g1.operate_with_self(q_s.representative());
+
+let fake_proof = q_commitment;
+println!("Fake proof for submission:");
+println!("{:?}", &fake_proof.to_affine().x().to_string());
+println!("{:?}", &fake_proof.to_affine().y().to_string());
+assert!(kzg.verify(&z, &v, &p_commitment, &fake_proof));
+println!("Faked succesfully!");
+```
