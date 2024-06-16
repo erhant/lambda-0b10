@@ -4,7 +4,9 @@ members = [
     "challenges/chal2",
     "challenges/interview",
     "cryptosystems",
-    "snarks",
+    "snarks/babysnark",
+    "snarks/stark101",
+    "snarks/plonk",
     "algebra",
 ]
 
@@ -17,5 +19,7 @@ edition = "2021"
 lambdaworks-crypto = "0.7.0"
 lambdaworks-math = "0.7.0"
 
+log = "*"
+env_logger = "*"
 rand = "0.8.5"
 rand_chacha = "0.3.1"

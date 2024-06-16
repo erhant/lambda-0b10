@@ -120,6 +120,8 @@ There is also the **Jacobian** form, which is a bit more efficient than projecti
 
 > There are many more representations, each with different levels of efficiency. You can see different point representations for Short Weierstrass at <https://hyperelliptic.org/EFD/g1p/auto-shortw.html>.
 
+> A point can be stored efficiently as well. For example, a curve point is given by the pair $(x, y)$, but you can only store $x$ if you want to; because $y$ can be derived from $x$ by taking the square of curve equation's $x$-side. A single extra bit to indicate the positive / negative solution is enough to store the point.
+
 # Elliptic Curve Cryptography
 
 The public key in Elliptic Curve Cryptography is derived using scalar multiplication. Given a private key $d$ and a base point $G$, the public key is $Q = dG$. This is based on the assumption that the discrete logarithm problem is hard to solve, i.e. given $Q = dG$ and $G$, it is hard to find $d$.
@@ -156,9 +158,15 @@ This is good an all, but it is not _authenticated_. This means that an attacker 
 
 ECDSA, Schnorr signatures and BLS signatures all are defined using an elliptic curve.
 
-TODO: explain
+### Schnorr Signatures
 
-> Signatures can be stored efficiently as well. For example, a signature is a curve point $(x, y)$, but you can only store $x$ as well, because $y$ can be derived from $x$ by taking the square of curve equation's $x$-side. A single extra bit to indicate the positive / negative solution is enough to store the signature.
+One of the simplest examples of signatures is the Schnorr signature. Consider a group $G$ of prime order $q$ with a generator $g$ and a hash function $H : \{0, 1\}^* \to \mathbb{Z}_q$. The algorithms are below:
+
+- **Key Generation**: The private key is a randomly picked $x \in \mathbb{Z}_q$ and the public key is $y = g^{-x}$.
+
+- **Signing**: To sign a message $m$, the signer picks a random $k \in \mathbb{Z}_q$ and computes $r = g^k$ and $e = H(r || m)$. Then, the signer computes $s = k + xe$ and the signature is $(s, e)$.
+
+- **Verification**: To verify the signature $(s, e)$ on message $m$, the verifier computes $r_v = g^s y^e$ and $e_v = H(r_v || m)$. The signature is valid if $e = e_v$.
 
 ## Implementation
 
@@ -323,3 +331,7 @@ If we had access to $s$ (toxic waste) we could construct the fake proof:
 $$
 (P(s)-3)(s-1)^{-1} = Q(s)
 $$
+
+```
+
+```

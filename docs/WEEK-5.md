@@ -75,7 +75,7 @@ $$
 
 This can help with some hard computations like elliptic curve additions, posedion hashes and foreign-field arithmetic. Moreover, custom gates allow one to use **lookup gates**. With a lookup gate, you can optimize a computation that is hard to arithmetize (e.g. SHA2 or AES) by simply storing a table of its inputs and outputs and then use that table to lookup a correct result.
 
-## To Polynomials
+### Gates To Polynomials
 
 Consider the basic gate again:
 
@@ -137,7 +137,7 @@ $$
 
 where $L_i(x)$ is the Lagrange basis polynomial such that $L_i(x_i) = 1$ and $L_i(x_j) = 0$ for $j \neq i$.
 
-## Connecting Gates
+## Wiring between Gates
 
 The gate equations above capture the constraint within a gate alone, but not their connections!
 
@@ -193,3 +193,64 @@ With this, the verifier can check for every $a \in \{\omega^0, \omega^1, \omega^
 2. $Z(a)f'(a) = Z(\omega a)g'(a)$
 
 > The permutation trick here is better found in the Plonk paper.
+
+## Prover
+
+Prover (having access to witness values $w_i$ for $i \in \{0, 1, \ldots, 3n\}$) does the following:
+
+### Round 1: Blinding
+
+Sample $b_1, b_2, \ldots, b_9$ blinding factors, and compute:
+
+$$
+a(x) = \sum a_i L_i(x) + (b_1x + b_2)Z(x)
+$$
+
+Here $Z$ is the vanishing poylynomial. Notice how $Z(x)$ results in zero when the input is $g^i$, but when evaluated at some other value it is there which brings some extra randomness to the evaluation due to $b_1x + b_2$.
+
+$$
+b(x) = \sum b_i L_i(x) + (b_3x + b_4)Z(x)
+$$
+
+$$
+c(x) = \sum c_i L_i(x) + (b_5x + b_6)Z(x)
+$$
+
+Prover now commits to these polynomials to obtain $\boxed{a(x)}_1, \boxed{b(x)}_1, \boxed{c(x)}_1$. We will use the final 3 blindings in the next step.
+
+### Round 2: Permutation
+
+Now we will do the permutation argument. First, we sample $\beta, \gamma$ (from the transcript, as if its provided from the verifier). Then, we build the permutation polynomial $z(x)$. Recall that if there is a value $v_i$ at index $i$, then there is a value at $v_i'$ at index $\sigma(i)$ (permuted).
+
+$$
+z(x) = L_0(x) + \sum_{i=0}^{n-1}\left(L_{i+1}(x)\prod_{j=i}^i (a_j + \beta g^j \right)
+$$
+
+TODO: check paper for this
+
+TODO: An addition blinding is added $(b_7x^2 + b_8x + b_9)Z(x)$.
+
+### Round 3: Computing Quotients
+
+TODO: !!!
+
+### Round 4: Evaluation
+
+We must convince the verifier that all these constraints hold, and show that the polynomials are correct. We will evaluate the polynomials at some random point $\zeta$ (from the transcript) and send the evaluations to the verifier.
+
+- $\bar{a} = a(\zeta)$
+- $\bar{b} = b(\zeta)$
+- $\bar{c} = c(\zeta)$
+- $\bar{s_{\sigma_1}} = s_{\sigma_1}(\zeta)$
+- $\bar{s_{\sigma_2}} = s_{\sigma_2}(\zeta)$
+- $\bar{z}g = z(\zeta g)$
+
+Prover sends $(\bar{a}, \bar{b}, \bar{c}, \bar{s_{\sigma_1}}, \bar{s_{\sigma_2}}, \bar{z}g)$ to verifier.
+
+### Round 5: Proving Evaluations
+
+Sample a value $v$ from transcript. Compute linearization polynomial:
+
+TODO: !!!
+
+> During the random linear combination, instead of a random sample per point, you can use a single random sample and its consecutive powers, which is slightly less secure but reduces communication.

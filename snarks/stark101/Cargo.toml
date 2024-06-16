@@ -1,5 +1,5 @@
 [package]
-name = "snarks"
+name = "stark101"
 version.workspace = true
 edition.workspace = true
 
@@ -8,4 +8,6 @@ edition.workspace = true
 [dependencies]
 lambdaworks-math.workspace = true
 lambdaworks-crypto.workspace = true
-baby-snark = { git = "https://github.com/lambdaclass/lambdaworks.git", branch = "main" }
+rand.workspace = true
+log.workspace = true
+env_logger.workspace = true

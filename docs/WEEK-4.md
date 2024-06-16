@@ -4,7 +4,17 @@
 
 # FRI
 
-**Fast Reed-Solomon Interactive Oracle Proof of Proximity** (FRI) is a commitment scheme that is based on hash functions and proximity tests. You show that a given functions is "close" to a low-degree polynomial.
+**Fast Reed-Solomon Interactive Oracle Proof of Proximity** (FRI) is a commitment scheme that is based on hash functions and proximity tests. You show that a given polynomial is "close" to a "low-degree" polynomial.
+
+FRI can be simply shown as:
+
+1. Receive random $\beta$
+2. Apply the **FRI Operator**
+3. Commit
+4. Go-to step 1 until you reach a constant polynomial (i.e. degree $<1$)
+5. Send all commitments & the final constant polynomial
+
+The goal of FRI Operator is to go from "prove a function (over domain of size $N$) is close to a polynomial of degree $<D$" to "prove a function (over domain of size $N/2$) is close to a polynomial of degree $<D/2$".
 
 ### **Recall**: SNARKs
 
@@ -240,7 +250,7 @@ $$
 P(t(x), t(gx)) = t(gx) - t(x)^2 = C(x)
 $$
 
-6. Sample random values (i.e. hash your transcript to obtain randomness) to create a linear combination of polynomials (i.e. Batch FRI).
+6. Sample random values (i.e. hash your transcript to obtain randomness) to create a linear combination of polynomials (i.e. Batch FRI), obtaining the **Composition Polynomial**.
 
 $$
 CP(x) = \alpha\frac{C_t(x)}{Z(x)} + \beta \frac{t(x)-2}{x-1} + \delta \frac{t(x) - 2^{2^n}}{x - g^n}

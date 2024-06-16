@@ -7,7 +7,7 @@ This repository is an umbrella repository for my notes during [Sparkling Water B
 - [Week 3](./docs/WEEK-3.md): SNARKs, KZG, BabySNARK.
 - [Week 4](./docs/WEEK-4.md): STARKs, FRI.
 - [Week 5](./docs/WEEK-5.md): PlonK.
-- Week 6
+- <strike>Week 6</strike>: Skipped due to conference.
 - Week 7
 - Week 8
 

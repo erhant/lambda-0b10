@@ -1,3 +1,7 @@
+fn main() {
+    unimplemented!()
+}
+
 #[cfg(test)]
 mod tests {
     use baby_snark::common::FrElement;
