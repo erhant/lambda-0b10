@@ -1,3 +1,11 @@
+use lambdaworks_crypto::{
+    fiat_shamir::default_transcript::DefaultTranscript,
+    hash::sha3::Sha3Hasher,
+    merkle_tree::backends::{
+        field_element::FieldElementBackend,
+        types::{Keccak256Backend, Sha2_256Backend},
+    },
+};
 use lambdaworks_math::{
     field::{
         element::FieldElement,
@@ -15,6 +23,10 @@ impl IsModulus<U64> for MontgomeryConfigStark101PrimeField {
 
 pub type Stark101PrimeField = U64PrimeField<MontgomeryConfigStark101PrimeField>;
 
+pub type Stark101PrimeFieldBackend = Sha2_256Backend<Stark101PrimeField>;
+
+pub type Stark101PrimeFieldTranscript = DefaultTranscript<Stark101PrimeField>;
+
 // impl IsFFTField for Stark101PrimeField {
 //     const TWO_ADICITY: u64 = 30;
 //     // Change this line for a new function like `from_limbs`.
@@ -29,7 +41,7 @@ pub type Stark101PrimeField = U64PrimeField<MontgomeryConfigStark101PrimeField>;
 
 pub type Stark101PrimeFieldElement = FieldElement<Stark101PrimeField>;
 
-/// Returns a generator for a subgroup of the given order.
+/// Returns a generator for a subgroup of the given order a power of two.
 ///
 /// 1. Generate a random element `r` in the field.
 /// 2. Compute `g = r^(order_u128 / order)` (co-factor clearing).
@@ -75,6 +87,18 @@ pub fn generate_subgroup(g: Stark101PrimeFieldElement) -> Vec<Stark101PrimeField
     subgroup
 }
 
+pub fn generate_generator() -> Stark101PrimeFieldElement {
+    loop {
+        let r = Stark101PrimeFieldElement::from(rand::random::<u64>());
+
+        if r.pow(3u128) != Stark101PrimeFieldElement::one()
+            && r.pow(1u128 << 30u128) != Stark101PrimeFieldElement::one()
+        {
+            return r;
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::Stark101PrimeFieldElement as FE;
@@ -108,5 +132,12 @@ mod tests {
     fn test_subgroup_1() {
         let subgroup = generate_subgroup(FE::one());
         assert_eq!(subgroup.len(), 1);
+    }
+
+    #[test]
+    fn test_generator() {
+        let order_u128: u128 = 3u128 * (1u128 << 30u128);
+        let g = generate_generator();
+        assert_eq!(g.pow(order_u128), FE::one());
     }
 }
