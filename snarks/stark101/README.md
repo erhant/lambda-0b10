@@ -8,6 +8,14 @@ Our objective is to prove that we know $x$ such that $a_{1022} = 2338775057$ in 
 - [Notebook 4](https://github.com/starkware-industries/stark101/blob/master/tutorial/Stark101-part4.ipynb) - [Video 4](https://www.youtube.com/watch?v=CxP28qM4tAc)
 - [Notebook 5](https://github.com/starkware-industries/stark101/blob/master/tutorial/Stark101-part5.ipynb) - [Video 5](https://www.youtube.com/watch?v=iuNbrTkH2ik)
 
+The implementation is found within the [`main.rs`](./src/main.rs) file. We make use of LambdaWorks's following tools together with our custom field:
+
+- MerkleTree using `Sha2_256Backend` for Merkle commitments
+- Transcript using `DefaultTranscript`, for the Fiat-Shamir transform
+- Polynomial library for polynomial operations
+
+We stick to the naming conventions used in the tutorial, so it should be easy to follow the code along with the notebooks.
+
 ## Usage
 
 Run the prover via:

@@ -82,6 +82,7 @@ fn find_toxic_waste(g1: &G1Point, sg1: &G1Point, g2: &G2Point, sg2: &G2Point) ->
         }
     }
 }
+
 /// Finds a primitive 64th root of unity in the scalar field of the BLS12-381 curve.
 fn find_primitive_root() -> FrElement {
     loop {

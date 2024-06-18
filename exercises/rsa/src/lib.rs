@@ -14,7 +14,7 @@ impl RSA {
         let n = p.clone() * q.clone();
         let phi_n = (p - one.clone()) * (q - one.clone());
 
-        let e = BigUint::from_u32(65537).unwrap();
+        let e = BigUint::from_u32(65537).unwrap(); // 0x10001
 
         // e * d = 1 (mod phi(n))
         let e_inv = e.modinv(&phi_n.clone()).unwrap();

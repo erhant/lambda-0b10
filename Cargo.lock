@@ -428,15 +428,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "reed-solomon"
-version = "0.1.0"
-dependencies = [
- "lambdaworks-crypto 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "lambdaworks-math 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "rand",
-]
-
-[[package]]
 name = "regex"
 version = "1.10.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -529,6 +520,15 @@ checksum = "75872d278a8f37ef87fa0ddbda7802605cb18344497949862c0d4dcb291eba60"
 dependencies = [
  "digest",
  "keccak",
+]
+
+[[package]]
+name = "shamir-secret-share"
+version = "0.1.0"
+dependencies = [
+ "lambdaworks-crypto 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "lambdaworks-math 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rand",
 ]
 
 [[package]]

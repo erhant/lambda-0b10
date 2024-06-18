@@ -4,7 +4,7 @@ members = [
     "challenges/chal2",
     "challenges/interview",
     "exercises/rsa",
-    "exercises/reed-solomon",
+    "exercises/shamir-secret-share",
     "snarks/babysnark",
     "snarks/stark101",
     "snarks/plonk",

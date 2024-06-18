@@ -8,14 +8,20 @@ This repository is an umbrella repository for my notes during [Sparkling Water B
 - [Week 4](./docs/WEEK-4.md): STARKs, FRI.
 - [Week 5](./docs/WEEK-5.md): PlonK.
 - <strike>[Week 6](./docs/WEEK-6.md)</strike>: Skipped due to conference.
-- [Week 7](./docs/WEEK-7.md): Multi-linear Extension, Sum-Check.
+- [Week 7](./docs/WEEK-7.md): Multi-linear Extension, Sum-Check, Binius.
 - Week 8
 
 Other things included here:
 
 - [Interview](./challenges/interview/README.md): Interview questions & answers.
 - [Challenge 2](./challenges/chal2/README.md): KZG fake proof challenge.
-- [Stark101](./snarks/)
-- [Sum-Check](./) try doing a simple sum-check for 3 variables, **TODO**.
-- [Shamir's Secret Sharing](./) **TODO**.
-- [RSA](./) **TODO**
+- [RSA](./exercises/rsa/): PoC implementation of RSA cryptosystem.
+- [Shamir's Secret Sharing](./exercises/shamir-secret-share/) a basic Shamir's Secret Sharing implementation.
+- [Stark101](./snarks/stark101/README.md): PoC implementation of Stark101 prover, based on its blog posts.
+- [Sum-Check](./exercises/sumcheck/) try doing a simple sum-check for 3 variables, **TODO**.
+
+You can run any of these via the Makefile, just see:
+
+```sh
+make help
+```
