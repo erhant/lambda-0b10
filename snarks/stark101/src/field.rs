@@ -1,6 +1,6 @@
 use lambdaworks_crypto::{
     fiat_shamir::default_transcript::DefaultTranscript,
-    merkle_tree::backends::types::{Keccak256Backend, Sha2_256Backend},
+    merkle_tree::backends::types::Sha2_256Backend,
 };
 use lambdaworks_math::{
     field::{

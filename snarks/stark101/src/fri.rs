@@ -1,16 +1,14 @@
 use lambdaworks_crypto::{
     fiat_shamir::is_transcript::IsTranscript,
-    merkle_tree::{
-        backends::{field_element::FieldElementBackend, types::Sha2_256Backend},
-        merkle::MerkleTree,
-        traits::IsMerkleTreeBackend,
-    },
+    merkle_tree::{backends::types::Sha2_256Backend, merkle::MerkleTree},
 };
 use lambdaworks_math::{
     field::{element::FieldElement, traits::IsField},
     polynomial::Polynomial,
     traits::AsBytes,
 };
+
+use crate::program::BLOWUP_FACTOR;
 
 /// Given a domain of length `n`, returns the first half of it with each element squared.
 pub fn next_fri_domain<F: IsField>(domain: Vec<FieldElement<F>>) -> Vec<FieldElement<F>> {
@@ -68,12 +66,12 @@ pub fn next_fri_layer<F: IsField>(
     (next_poly, next_domain, next_layer)
 }
 
-pub fn fri_commit<F: IsField + Send + Sync, T: IsTranscript<F>>(
+pub fn fri_commit<F: IsField, T: IsTranscript<F>>(
     cp: Polynomial<FieldElement<F>>,
     domain: Vec<FieldElement<F>>,
     cp_eval: Vec<FieldElement<F>>,
     cp_merkle: MerkleTree<Sha2_256Backend<F>>,
-    mut channel: T,
+    channel: &mut T,
 ) -> (
     Vec<Polynomial<FieldElement<F>>>,
     Vec<Vec<FieldElement<F>>>,
@@ -115,4 +113,95 @@ where
     channel.append_field_element(&fri_layers.last().unwrap()[0]);
 
     (fri_polys, fri_domains, fri_layers, fri_merkles)
+}
+
+pub fn decommit_on_fri_layers<F: IsField, T: IsTranscript<F>>(
+    idx: usize,
+    channel: &mut T,
+    fri_layers: &[Vec<FieldElement<F>>],
+    fri_merkles: &[MerkleTree<Sha2_256Backend<F>>],
+) -> ()
+where
+    FieldElement<F>: AsBytes + Send + Sync,
+{
+    for i in 0..fri_layers.len() - 1 {
+        let layer = fri_layers[i].clone();
+        let merkle = fri_merkles[i].clone();
+
+        let length = layer.len();
+        let idx = idx % length; // idx is always in the first half of the layer
+        let sib_idx = (idx + (length >> 1)) % length; // sibling idx is in the other half
+
+        channel.append_field_element(&layer[idx]);
+        let auth_path = merkle.get_proof_by_pos(idx).unwrap();
+        for path in auth_path.merkle_path {
+            channel.append_bytes(&path);
+        }
+
+        channel.append_field_element(&layer[sib_idx]);
+        let auth_path = merkle.get_proof_by_pos(sib_idx).unwrap();
+        for path in auth_path.merkle_path {
+            channel.append_bytes(&path);
+        }
+    }
+
+    channel.append_field_element(&fri_layers.last().unwrap()[0]);
+}
+
+pub fn decommit_on_query<F: IsField, T: IsTranscript<F>>(
+    idx: usize,
+    channel: &mut T,
+    f_eval: &[FieldElement<F>],
+    f_merkle: MerkleTree<Sha2_256Backend<F>>,
+    fri_layers: &[Vec<FieldElement<F>>],
+    fri_merkles: &[MerkleTree<Sha2_256Backend<F>>],
+) -> ()
+where
+    FieldElement<F>: AsBytes + Send + Sync,
+{
+    assert!(idx + 2 * BLOWUP_FACTOR < f_eval.len(), "index out-of-range");
+
+    channel.append_field_element(&f_eval[idx]); // f(x)
+    let auth_path = f_merkle.get_proof_by_pos(idx).unwrap();
+    for path in auth_path.merkle_path {
+        channel.append_bytes(&path);
+    }
+
+    channel.append_field_element(&f_eval[idx + BLOWUP_FACTOR]); // f(g . x)
+    let auth_path = f_merkle.get_proof_by_pos(idx + BLOWUP_FACTOR).unwrap();
+    for path in auth_path.merkle_path {
+        channel.append_bytes(&path);
+    }
+
+    channel.append_field_element(&f_eval[idx + 2 * BLOWUP_FACTOR]); // f(g^2 . x)
+    let auth_path = f_merkle.get_proof_by_pos(idx + 2 * BLOWUP_FACTOR).unwrap();
+    for path in auth_path.merkle_path {
+        channel.append_bytes(&path);
+    }
+
+    decommit_on_fri_layers(idx, channel, fri_layers, fri_merkles);
+}
+
+pub fn decommit_fri<F: IsField, T: IsTranscript<F>>(
+    num_queries: usize,
+    channel: &mut T,
+    f_eval: &[FieldElement<F>],
+    f_merkle: &MerkleTree<Sha2_256Backend<F>>,
+    fri_layers: &[Vec<FieldElement<F>>],
+    fri_merkles: &[MerkleTree<Sha2_256Backend<F>>],
+) -> ()
+where
+    FieldElement<F>: AsBytes + Send + Sync,
+{
+    for _ in 0..num_queries {
+        let random_idx = channel.sample_u64((f_eval.len() - 2 * BLOWUP_FACTOR) as u64);
+        decommit_on_query(
+            random_idx as usize,
+            channel,
+            f_eval,
+            f_merkle.clone(),
+            fri_layers,
+            fri_merkles,
+        );
+    }
 }

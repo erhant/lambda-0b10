@@ -1,4 +1,4 @@
-#![allow(non_snake_case)]
+#![allow(non_snake_case, unused_variables)]
 
 use std::env;
 
@@ -12,22 +12,17 @@ use stark101::{
         generate_generator, generate_subgroup, get_subgroup_generator, Stark101PrimeFieldBackend,
         Stark101PrimeFieldElement as FE, Stark101PrimeFieldTranscript,
     },
-    fri::fri_commit,
-    program::fibonacci_square,
+    fri::{decommit_fri, fri_commit},
+    program::{fibonacci_square, BLOWUP_FACTOR},
 };
 
-fn part_1() -> (
-    Vec<FE>,
-    FE,
-    Vec<FE>,
-    FE,
-    Vec<FE>,
-    Vec<FE>,
-    Polynomial<FE>,
-    Vec<FE>,
-    MerkleTree<Stark101PrimeFieldBackend>,
-    Stark101PrimeFieldTranscript,
-) {
+fn main() {
+    env::set_var("RUST_LOG", "debug");
+    env_logger::init();
+
+    /////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////  PART 1  ////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////
     log::info!("Computing trace of FibonacciSq program");
     let n = 1023;
     let a_0 = FE::from(1u64);
@@ -52,7 +47,7 @@ fn part_1() -> (
 
     log::info!("Extending to a larger domain");
     let w = generate_generator();
-    let H_order = (n + 1) * 8; // 8 times larger domain
+    let H_order = (n + 1) * BLOWUP_FACTOR; // extend to a larger domain
     let h = get_subgroup_generator(H_order as u128);
     let H = generate_subgroup(h);
     let eval_domain = H.clone().into_iter().map(|x| w * x).collect::<Vec<_>>();
@@ -74,18 +69,9 @@ fn part_1() -> (
     channel.append_bytes(&f_merkle_root);
     log::debug!("Transcript state: {:?}", channel.state());
 
-    (a, g, G, h, H, eval_domain, f, f_eval, f_merkle, channel)
-}
-
-fn part_2() -> (
-    Polynomial<FE>,
-    Vec<FE>,
-    MerkleTree<Stark101PrimeFieldBackend>,
-    Stark101PrimeFieldTranscript,
-    Vec<FE>,
-) {
-    let (a, g, G, h, H, eval_domain, f, f_eval, f_merkle, mut channel) = part_1();
-
+    /////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////  PART 2  ////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////
     log::info!("Constructing the first constraint: a_0 = 1 ==> f(0) = 1");
     let numer0 = f.clone() - Polynomial::new_monomial(FE::from(1u64), 0); // f - 1
     let denom0 = Polynomial::new(&[-FE::from(1u64), FE::from(1u64)]); // X - g^0 = X - 1
@@ -108,7 +94,7 @@ fn part_2() -> (
     let x_m_1023 = Polynomial::new(&[-g.pow(1023u64), FE::one()]); // X - g^1023
     let denom2 = x_1024 / (x_m_1021 * x_m_1022 * x_m_1023);
     let p2 = numer2 / denom2;
-    assert_eq!(p2.degree(), 1023); //
+    assert_eq!(p2.degree(), 1023); // (1022 * 2) - (1024 - 3) = 2044 - 1021 = 1023
 
     log::info!("Creating the composition polynomial");
     let alpha0 = channel.sample_field_element();
@@ -130,21 +116,29 @@ fn part_2() -> (
     log::info!("Adding root to transcript.");
     channel.append_bytes(&cp_merkle_root);
 
-    (cp, cp_eval, cp_merkle, channel, eval_domain)
-}
-
-fn part_3() {
-    let (cp, cp_eval, cp_merkle, channel, eval_domain) = part_2();
-
+    /////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////  PART 3  ////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////
     log::info!("FRI committing to the composition polynomial");
     let (fri_polys, fri_domains, fri_layers, fri_merkles) =
-        fri_commit(cp, eval_domain, cp_eval, cp_merkle, channel);
-    println!("FRI layers: {}", fri_polys.len());
-}
+        fri_commit(cp, eval_domain, cp_eval, cp_merkle, &mut channel);
+    assert_eq!(fri_layers.len(), 11);
+    assert_eq!(fri_layers.last().unwrap().len(), BLOWUP_FACTOR);
+    assert_eq!(fri_polys.last().unwrap().degree(), 0);
 
-fn main() {
-    env::set_var("RUST_LOG", "debug");
-    env_logger::init();
+    /////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////  PART 4  ////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////
+    log::info!("Generating queries and decommitments to FRI");
+    decommit_fri(
+        3,
+        &mut channel,
+        &f_eval,
+        &f_merkle,
+        &fri_layers,
+        &fri_merkles,
+    );
 
-    part_3();
+    let final_state = hex::encode(channel.state());
+    log::info!("Final transcript state: {}", final_state);
 }
