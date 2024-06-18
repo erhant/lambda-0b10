@@ -1,3 +1,5 @@
+#![allow(clippy::too_many_arguments, clippy::type_complexity)]
+
 use lambdaworks_crypto::{
     fiat_shamir::is_transcript::IsTranscript,
     merkle_tree::{backends::types::Sha2_256Backend, merkle::MerkleTree},
@@ -141,8 +143,7 @@ pub fn decommit_on_fri_layers<F: IsField, T: IsTranscript<F>>(
     paths: &mut Vec<Vec<[u8; 32]>>,
     fri_layers: &[Vec<FieldElement<F>>],
     fri_merkles: &[MerkleTree<Sha2_256Backend<F>>],
-) -> ()
-where
+) where
     FieldElement<F>: AsBytes + Send + Sync,
 {
     for i in 0..fri_layers.len() - 1 {
@@ -197,8 +198,7 @@ pub fn decommit_on_query<F: IsField, T: IsTranscript<F>>(
     f_merkle: &MerkleTree<Sha2_256Backend<F>>,
     fri_layers: &[Vec<FieldElement<F>>],
     fri_merkles: &[MerkleTree<Sha2_256Backend<F>>],
-) -> ()
-where
+) where
     FieldElement<F>: AsBytes + Send + Sync,
 {
     assert!(idx + 2 * BLOWUP_FACTOR < f_eval.len(), "index out-of-range");

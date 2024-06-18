@@ -24,7 +24,7 @@ impl<F: IsField> ShamirSecretShare<F> {
         Self {
             n,
             k,
-            phantom: PhantomData::default(),
+            phantom: PhantomData,
         }
     }
 

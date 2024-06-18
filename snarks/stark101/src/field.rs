@@ -76,10 +76,10 @@ pub fn generate_subgroup(g: Stark101PrimeFieldElement) -> Vec<Stark101PrimeField
     let mut subgroup = Vec::new();
     subgroup.push(Stark101PrimeFieldElement::one());
 
-    let mut next = g.clone();
+    let mut next = g;
     while next != Stark101PrimeFieldElement::one() {
         subgroup.push(next);
-        next = next * g.clone();
+        next *= g;
     }
 
     subgroup

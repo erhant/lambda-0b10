@@ -6,7 +6,6 @@ use lambdaworks_crypto::{
     fiat_shamir::is_transcript::IsTranscript, merkle_tree::merkle::MerkleTree,
 };
 use lambdaworks_math::polynomial::Polynomial;
-use log;
 use stark101::{
     field::{
         generate_generator, generate_subgroup, get_subgroup_generator, Stark101PrimeFieldBackend,

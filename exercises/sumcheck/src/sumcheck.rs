@@ -1,5 +1,3 @@
-use std::marker::PhantomData;
-
 use lambdaworks_math::{
     field::{element::FieldElement, traits::IsField},
     polynomial::{dense_multilinear_poly::DenseMultilinearPolynomial, Polynomial},
