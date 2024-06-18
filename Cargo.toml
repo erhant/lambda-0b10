@@ -5,6 +5,7 @@ members = [
     "exercises/interview",
     "exercises/rsa",
     "exercises/shamir-secret-share",
+    "exercises/sumcheck",
     "snarks/babysnark",
     "snarks/stark101",
     "snarks/plonk",

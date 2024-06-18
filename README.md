@@ -7,7 +7,7 @@ This repository is an umbrella repository for my notes during [Sparkling Water B
 - [Week 3](./docs/WEEK-3.md): SNARKs, KZG, BabySNARK.
 - [Week 4](./docs/WEEK-4.md): STARKs, FRI.
 - [Week 5](./docs/WEEK-5.md): PlonK.
-- <strike>[Week 6](./docs/WEEK-6.md)</strike>: Skipped due to conference.
+- <strike>[Week 6](./docs/WEEK-6.md)</strike> (_skipped due to conference_)
 - [Week 7](./docs/WEEK-7.md): Multi-linear Extension, Sum-Check, Binius.
 - Week 8
 
@@ -15,11 +15,11 @@ Other things included here:
 
 - [Interview](./exercises/interview/README.md): Bootcamp interview questions & answers.
 - [RSA](./exercises/rsa/): PoC implementation of RSA cryptosystem.
-- [Shamir's Secret Sharing](./exercises/shamir-secret-share/) a basic Shamir's Secret Sharing implementation.
+- [Shamir's Secret Sharing](./exercises/shamir-secret-share/): a basic Shamir's Secret Sharing implementation.
 - [Vault of Loki](./exercises/vault-of-loki/README.md): KZG fake proof challenge by LambdaClass.
 - [BabySnark](./snarks/babysnark/README.md): Small example circuits using BabySnark.
 - [Stark101](./snarks/stark101/README.md): PoC implementation of Stark101 prover, based on its blog posts.
-- [Sum-Check](./exercises/sumcheck/) try doing a simple sum-check for 3 variables, **TODO**.
+- [Sum-Check](./exercises/sumcheck/): try doing a simple sum-check for 3 variables, **TODO**.
 
 You can run any of these via the Makefile, just see:
 

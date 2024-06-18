@@ -60,11 +60,7 @@ $$
 
 # Sum-Check Protocol
 
-Sum-check protocol is an important protocol in the context of MLE-based proof systems. It is efficient, and has low communication costs.
-
-Consider a $\nu$-variate polynomial $g(x_1, x_2, \ldots, x_\nu)$ of degree $d$ over $\mathbb{F}$, and a set $S = \{0, 1\}^\nu$.
-
-Sum-check proves that $H$ is the result of the sum below:
+Sum-check protocol is an important protocol in the context of MLE-based proof systems. It is efficient, and has low communication costs. Consider a $\nu$-variate polynomial $g(x_1, x_2, \ldots, x_\nu)$ of degree $d$ over $\mathbb{F}$, and a set $S = \{0, 1\}^\nu$; the Sum-check proves that $H$ is the result of the sum below:
 
 $$
 \sum_{x_1\in\{0, 1\}}\sum_{x_2\in\{0, 1\}}\ldots\sum_{x_\nu\in\{0, 1\}}g(x_1, x_2, \ldots, x_\nu) = H

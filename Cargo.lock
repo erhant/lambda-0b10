@@ -536,6 +536,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "sumcheck"
+version = "0.1.0"
+dependencies = [
+ "env_logger",
+ "lambdaworks-math 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "log",
+ "rand",
+]
+
+[[package]]
 name = "syn"
 version = "2.0.52"
 source = "registry+https://github.com/rust-lang/crates.io-index"
