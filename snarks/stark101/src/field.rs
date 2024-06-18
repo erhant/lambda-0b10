@@ -84,6 +84,8 @@ pub fn generate_subgroup(g: Stark101PrimeFieldElement) -> Vec<Stark101PrimeField
     subgroup
 }
 
+/// Generates a generator of the group, by sampling a random element and making sure
+/// that it does not belong to a smaller subgroup.
 pub fn generate_generator() -> Stark101PrimeFieldElement {
     loop {
         let r = Stark101PrimeFieldElement::from(rand::random::<u64>());

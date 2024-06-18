@@ -10,8 +10,12 @@ Our objective is to prove that we know $x$ such that $a_{1022} = 2338775057$ in 
 
 ## Usage
 
-`debug` mode will be rather slow, use `release` mode instead.
+Run the prover via:
 
 ```sh
 cargo run --release --bin stark101
 ```
+
+> [!TIP]
+>
+> `debug` mode is rather slow especially during the most compute-intensive interpolation part, so we use `release` mode instead.

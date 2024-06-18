@@ -47,6 +47,10 @@ pub fn next_fri_polynomial<F: IsField>(
     even + beta * odd
 }
 
+/// Given a polynomial `poly` and an evaluation domain `domain` along with a
+/// random field element `beta`, returns the next FRI layer.
+///
+/// This next layer contains the evaluations of the folded polynomial over the squared half-domain.
 pub fn next_fri_layer<F: IsField>(
     poly: Polynomial<FieldElement<F>>,
     domain: Vec<FieldElement<F>>,
@@ -66,6 +70,7 @@ pub fn next_fri_layer<F: IsField>(
     (next_poly, next_domain, next_layer)
 }
 
+/// Commits to the given polynomial `cp` and returns the FRI layers along with their Merkle trees.
 pub fn fri_commit<F: IsField, T: IsTranscript<F>>(
     cp: Polynomial<FieldElement<F>>,
     domain: Vec<FieldElement<F>>,
@@ -97,7 +102,6 @@ where
             fri_domains.last().unwrap().clone(),
             beta,
         );
-
         fri_polys.push(next_poly);
         fri_domains.push(next_domain);
         fri_layers.push(next_layer.clone());
@@ -152,7 +156,7 @@ pub fn decommit_on_query<F: IsField, T: IsTranscript<F>>(
     idx: usize,
     channel: &mut T,
     f_eval: &[FieldElement<F>],
-    f_merkle: MerkleTree<Sha2_256Backend<F>>,
+    f_merkle: &MerkleTree<Sha2_256Backend<F>>,
     fri_layers: &[Vec<FieldElement<F>>],
     fri_merkles: &[MerkleTree<Sha2_256Backend<F>>],
 ) -> ()
@@ -193,13 +197,14 @@ pub fn decommit_fri<F: IsField, T: IsTranscript<F>>(
 where
     FieldElement<F>: AsBytes + Send + Sync,
 {
+    let upper_bound = (f_eval.len() - 2 * BLOWUP_FACTOR) as u64;
     for _ in 0..num_queries {
-        let random_idx = channel.sample_u64((f_eval.len() - 2 * BLOWUP_FACTOR) as u64);
+        let random_idx = channel.sample_u64(upper_bound);
         decommit_on_query(
             random_idx as usize,
             channel,
             f_eval,
-            f_merkle.clone(),
+            f_merkle,
             fri_layers,
             fri_merkles,
         );

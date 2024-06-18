@@ -31,6 +31,9 @@ fn main() {
     assert_eq!(a.len(), n);
     assert_eq!(*a.last().unwrap(), FE::from(2338775057u64));
 
+    log::info!("Creating transcript");
+    let mut channel = Stark101PrimeFieldTranscript::default();
+
     log::info!("Creating evaluation domain");
     let G_order = n + 1;
     let g = get_subgroup_generator(G_order as u128);
@@ -63,11 +66,7 @@ fn main() {
     let f_merkle = MerkleTree::<Stark101PrimeFieldBackend>::build(&f_eval);
     let f_merkle_root = f_merkle.root;
     log::debug!("Merkle Root: {}", hex::encode(f_merkle_root));
-
-    log::info!("Adding root to transcript.");
-    let mut channel = Stark101PrimeFieldTranscript::default();
     channel.append_bytes(&f_merkle_root);
-    log::debug!("Transcript state: {:?}", channel.state());
 
     /////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////  PART 2  ////////////////////////////////////
@@ -78,7 +77,7 @@ fn main() {
     let p0 = numer0 / denom0;
     assert_eq!(p0.degree(), 1021); // 1022 - 1
 
-    log::info!("Constructing the last constraint: a_1022 = 2338775057 ==> f(1022) = 2338775057");
+    log::info!("Constructing the final constraint: a_1022 = 2338775057 ==> f(1022) = 2338775057");
     let numer1 = f.clone() - Polynomial::new_monomial(FE::from(2338775057u64), 0); // f - 2338775057
     let denom1: Polynomial<lambdaworks_math::field::element::FieldElement<lambdaworks_math::field::fields::montgomery_backed_prime_fields::MontgomeryBackendPrimeField<stark101::field::MontgomeryConfigStark101PrimeField, 1>>> = Polynomial::new(&[-g.pow(1022u64), FE::from(1u64)]); // X - g^1022
     let p1 = numer1 / denom1;
@@ -112,8 +111,6 @@ fn main() {
     let cp_merkle = MerkleTree::<Stark101PrimeFieldBackend>::build(&cp_eval);
     let cp_merkle_root = cp_merkle.root;
     log::debug!("Merkle Root: {}", hex::encode(cp_merkle_root));
-
-    log::info!("Adding root to transcript.");
     channel.append_bytes(&cp_merkle_root);
 
     /////////////////////////////////////////////////////////////////////////////////
