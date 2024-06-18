@@ -12,3 +12,5 @@ rand.workspace = true
 log.workspace = true
 env_logger.workspace = true
 hex.workspace = true
+serde.workspace = true
+serde_json.workspace = true

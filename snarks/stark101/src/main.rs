@@ -12,8 +12,9 @@ use stark101::{
         generate_generator, generate_subgroup, get_subgroup_generator, Stark101PrimeFieldBackend,
         Stark101PrimeFieldElement as FE, Stark101PrimeFieldTranscript,
     },
-    fri::{decommit_fri, fri_commit},
-    program::{fibonacci_square, BLOWUP_FACTOR},
+    fri::{decommit_fri, fri_commit, BLOWUP_FACTOR},
+    program::fibonacci_square,
+    proof::{Stark101Commitment, Stark101Proof},
 };
 
 fn main() {
@@ -79,7 +80,7 @@ fn main() {
 
     log::info!("Constructing the final constraint: a_1022 = 2338775057 ==> f(1022) = 2338775057");
     let numer1 = f.clone() - Polynomial::new_monomial(FE::from(2338775057u64), 0); // f - 2338775057
-    let denom1: Polynomial<lambdaworks_math::field::element::FieldElement<lambdaworks_math::field::fields::montgomery_backed_prime_fields::MontgomeryBackendPrimeField<stark101::field::MontgomeryConfigStark101PrimeField, 1>>> = Polynomial::new(&[-g.pow(1022u64), FE::from(1u64)]); // X - g^1022
+    let denom1 = Polynomial::new(&[-g.pow(1022u64), FE::from(1u64)]); // X - g^1022
     let p1 = numer1 / denom1;
     assert_eq!(p1.degree(), 1021); // 1022 - 1
 
@@ -127,8 +128,9 @@ fn main() {
     ///////////////////////////////////  PART 4  ////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////
     log::info!("Generating queries and decommitments to FRI");
-    decommit_fri(
-        3,
+    let num_queries = 3usize;
+    let decommitments = decommit_fri(
+        num_queries,
         &mut channel,
         &f_eval,
         &f_merkle,
@@ -137,5 +139,24 @@ fn main() {
     );
 
     let final_state = hex::encode(channel.state());
-    log::info!("Final transcript state: {}", final_state);
+    log::debug!("Final transcript state: {}", final_state);
+
+    /////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////  PROOF   ////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////
+    log::info!("Creating proof object");
+    assert_eq!(decommitments.len(), num_queries);
+    assert_eq!(fri_merkles.len(), 11);
+    assert_eq!(decommitments[0].evals.len(), 23); // 3 (trace) + 9 * 2 + 1 (constant)
+    assert_eq!(decommitments[0].paths.len(), 23); // 3 (trace) + 9 * 2 + 1 (constant)
+    let proof = Stark101Proof {
+        commitment: Stark101Commitment {
+            trace_root: f_merkle_root,
+            cp_roots: fri_merkles.iter().map(|m| m.root).collect(),
+        },
+        decommitments,
+    };
+
+    let path_str = proof.write_to_file();
+    log::info!("Proof created at {}", path_str);
 }

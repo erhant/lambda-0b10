@@ -8,7 +8,10 @@ use lambdaworks_math::{
     traits::AsBytes,
 };
 
-use crate::program::BLOWUP_FACTOR;
+use crate::proof::Stark101Decommitment;
+
+/// We use a constant blowup factor in this example.
+pub const BLOWUP_FACTOR: usize = 8;
 
 /// Given a domain of length `n`, returns the first half of it with each element squared.
 pub fn next_fri_domain<F: IsField>(domain: Vec<FieldElement<F>>) -> Vec<FieldElement<F>> {
@@ -119,9 +122,23 @@ where
     (fri_polys, fri_domains, fri_layers, fri_merkles)
 }
 
+/// Decommits on FRI layers, providing the evaluations of the polynomial at the given index and its sibling along with
+/// Merkle authentication paths.
+///
+/// For this example in particular, it provides the following:
+/// - `cp_0(x)` and its path
+/// - `cp_0(-x)` and its path
+/// - `cp_1(x^2)` and its path
+/// - `cp_1(-x^2)` and its path
+/// - `cp_2(x^4)` and its path
+/// - `cp_2(-x^4)` and its path
+/// - ...
+/// - `cp_10(x^1024)` and its path
 pub fn decommit_on_fri_layers<F: IsField, T: IsTranscript<F>>(
     idx: usize,
     channel: &mut T,
+    evals: &mut Vec<FieldElement<F>>,
+    paths: &mut Vec<Vec<[u8; 32]>>,
     fri_layers: &[Vec<FieldElement<F>>],
     fri_merkles: &[MerkleTree<Sha2_256Backend<F>>],
 ) -> ()
@@ -136,25 +153,46 @@ where
         let idx = idx % length; // idx is always in the first half of the layer
         let sib_idx = (idx + (length >> 1)) % length; // sibling idx is in the other half
 
-        channel.append_field_element(&layer[idx]);
+        // cp_i(x^{2(i+1)}), e.g. cp_2(x^4)
+        let eval = &layer[idx];
+        channel.append_field_element(eval);
+        evals.push(eval.clone());
         let auth_path = merkle.get_proof_by_pos(idx).unwrap();
-        for path in auth_path.merkle_path {
-            channel.append_bytes(&path);
+        for path in &auth_path.merkle_path {
+            channel.append_bytes(path);
         }
+        paths.push(auth_path.merkle_path);
 
-        channel.append_field_element(&layer[sib_idx]);
+        // cp_i(-x^{2(i+1)}), e.g. cp_2(-x^4)
+        let eval = &layer[sib_idx];
+        channel.append_field_element(eval);
+        evals.push(eval.clone());
         let auth_path = merkle.get_proof_by_pos(sib_idx).unwrap();
-        for path in auth_path.merkle_path {
-            channel.append_bytes(&path);
+        for path in &auth_path.merkle_path {
+            channel.append_bytes(path);
         }
+        paths.push(auth_path.merkle_path);
     }
 
     channel.append_field_element(&fri_layers.last().unwrap()[0]);
 }
 
+/// Decommits on an FRI query. Since our CP makes use of `x`, `g . x` and `g^2 . x`, we need to decommit on these
+/// three points. However, due to the domain extension, these points are `BLOWUP_FACTOR` apart from each other.
+///
+/// Within this function, we first provide Merkle proofs to the evaluations of the polynomial at these points.
+/// That is, we provide the things below:
+///
+/// - `f(x)` and its path
+/// - `f(g . x)` and its path
+/// - `f(g^2 . x)` and its path
+///
+/// Then, we call `decommit_on_layers` to provide the rest of decommitment.
 pub fn decommit_on_query<F: IsField, T: IsTranscript<F>>(
     idx: usize,
     channel: &mut T,
+    evals: &mut Vec<FieldElement<F>>,
+    paths: &mut Vec<Vec<[u8; 32]>>,
     f_eval: &[FieldElement<F>],
     f_merkle: &MerkleTree<Sha2_256Backend<F>>,
     fri_layers: &[Vec<FieldElement<F>>],
@@ -165,27 +203,42 @@ where
 {
     assert!(idx + 2 * BLOWUP_FACTOR < f_eval.len(), "index out-of-range");
 
-    channel.append_field_element(&f_eval[idx]); // f(x)
+    // f(x)
+    let eval = &f_eval[idx];
+    channel.append_field_element(eval);
+    evals.push(eval.clone());
     let auth_path = f_merkle.get_proof_by_pos(idx).unwrap();
-    for path in auth_path.merkle_path {
-        channel.append_bytes(&path);
+    for path in &auth_path.merkle_path {
+        channel.append_bytes(path);
     }
+    paths.push(auth_path.merkle_path);
 
-    channel.append_field_element(&f_eval[idx + BLOWUP_FACTOR]); // f(g . x)
+    // f(g . x)
+    let eval = &f_eval[idx + BLOWUP_FACTOR];
+    channel.append_field_element(eval);
+    evals.push(eval.clone());
     let auth_path = f_merkle.get_proof_by_pos(idx + BLOWUP_FACTOR).unwrap();
-    for path in auth_path.merkle_path {
-        channel.append_bytes(&path);
+    for path in &auth_path.merkle_path {
+        channel.append_bytes(path);
     }
+    paths.push(auth_path.merkle_path);
 
-    channel.append_field_element(&f_eval[idx + 2 * BLOWUP_FACTOR]); // f(g^2 . x)
+    // f(g^2 . x)
+    let eval = &f_eval[idx + 2 * BLOWUP_FACTOR];
+    channel.append_field_element(eval);
+    evals.push(eval.clone());
     let auth_path = f_merkle.get_proof_by_pos(idx + 2 * BLOWUP_FACTOR).unwrap();
-    for path in auth_path.merkle_path {
-        channel.append_bytes(&path);
+    for path in &auth_path.merkle_path {
+        channel.append_bytes(path);
     }
+    paths.push(auth_path.merkle_path);
 
-    decommit_on_fri_layers(idx, channel, fri_layers, fri_merkles);
+    decommit_on_fri_layers(idx, channel, evals, paths, fri_layers, fri_merkles);
 }
 
+/// Generate `num_queries` random queries and decommits on those indices.
+/// The queries are sampled from the transcript, i.e. they are "sent" by
+/// the verifier.
 pub fn decommit_fri<F: IsField, T: IsTranscript<F>>(
     num_queries: usize,
     channel: &mut T,
@@ -193,20 +246,29 @@ pub fn decommit_fri<F: IsField, T: IsTranscript<F>>(
     f_merkle: &MerkleTree<Sha2_256Backend<F>>,
     fri_layers: &[Vec<FieldElement<F>>],
     fri_merkles: &[MerkleTree<Sha2_256Backend<F>>],
-) -> ()
+) -> Vec<Stark101Decommitment<F>>
 where
     FieldElement<F>: AsBytes + Send + Sync,
 {
     let upper_bound = (f_eval.len() - 2 * BLOWUP_FACTOR) as u64;
+    let mut decommitments = Vec::new();
     for _ in 0..num_queries {
+        let mut evals = Vec::new();
+        let mut paths = Vec::new();
         let random_idx = channel.sample_u64(upper_bound);
         decommit_on_query(
             random_idx as usize,
             channel,
+            &mut evals,
+            &mut paths,
             f_eval,
             f_merkle,
             fri_layers,
             fri_merkles,
         );
+
+        decommitments.push(Stark101Decommitment { evals, paths });
     }
+
+    decommitments
 }

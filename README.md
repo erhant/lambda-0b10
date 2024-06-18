@@ -13,15 +13,20 @@ This repository is an umbrella repository for my notes during [Sparkling Water B
 
 Other things included here:
 
-- [Interview](./challenges/interview/README.md): Interview questions & answers.
-- [Challenge 2](./challenges/chal2/README.md): KZG fake proof challenge.
+- [Interview](./exercises/interview/README.md): Bootcamp interview questions & answers.
 - [RSA](./exercises/rsa/): PoC implementation of RSA cryptosystem.
 - [Shamir's Secret Sharing](./exercises/shamir-secret-share/) a basic Shamir's Secret Sharing implementation.
+- [Vault of Loki](./exercises/vault-of-loki/README.md): KZG fake proof challenge by LambdaClass.
+- [BabySnark](./snarks/babysnark/README.md): Small example circuits using BabySnark.
 - [Stark101](./snarks/stark101/README.md): PoC implementation of Stark101 prover, based on its blog posts.
 - [Sum-Check](./exercises/sumcheck/) try doing a simple sum-check for 3 variables, **TODO**.
 
 You can run any of these via the Makefile, just see:
 
 ```sh
-make help
+make interview
+make rsa
+make shamir
+make vault-of-loki
+make stark101
 ```

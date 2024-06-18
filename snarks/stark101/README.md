@@ -13,8 +13,11 @@ The implementation is found within the [`main.rs`](./src/main.rs) file. We make 
 - MerkleTree using `Sha2_256Backend` for Merkle commitments
 - Transcript using `DefaultTranscript`, for the Fiat-Shamir transform
 - Polynomial library for polynomial operations
+- An additional Proof struct has been written, so that at the end the proof is serialized & saved on disk.
 
-We stick to the naming conventions used in the tutorial, so it should be easy to follow the code along with the notebooks.
+> [!TIP]
+>
+> We stick to the naming conventions used in the tutorial, so it should be easy to follow the code along with the notebooks.
 
 ## Usage
 

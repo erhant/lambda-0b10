@@ -1,7 +1,5 @@
 use lambdaworks_math::field::{element::FieldElement, traits::IsField};
 
-pub const BLOWUP_FACTOR: usize = 8;
-
 /// Returns the trace of a program for `FibonacciSq`.
 pub fn fibonacci_square<F: IsField>(
     a_0: FieldElement<F>,

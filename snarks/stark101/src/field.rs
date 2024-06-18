@@ -9,8 +9,9 @@ use lambdaworks_math::{
     },
     unsigned_integer::element::U64,
 };
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, Hash, Copy)]
+#[derive(Clone, Debug, Hash, Copy, Serialize, Deserialize)]
 pub struct MontgomeryConfigStark101PrimeField;
 impl IsModulus<U64> for MontgomeryConfigStark101PrimeField {
     const MODULUS: U64 = U64::from_hex_unchecked("c0000001");

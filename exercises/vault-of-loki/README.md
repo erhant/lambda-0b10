@@ -1,4 +1,4 @@
-# [Challenge 2](https://github.com/lambdaclass/lambdaworks/tree/main/exercises/challenge_2)
+# [Challenge 2: Vault of Loki](https://github.com/lambdaclass/lambdaworks/tree/main/exercises/challenge_2)
 
 > # Breaking into the vault of Loki
 >

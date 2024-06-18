@@ -1,8 +1,8 @@
 [workspace]
 resolver = "2"
 members = [
-    "challenges/chal2",
-    "challenges/interview",
+    "exercises/vault-of-loki",
+    "exercises/interview",
     "exercises/rsa",
     "exercises/shamir-secret-share",
     "snarks/babysnark",
@@ -17,10 +17,15 @@ edition = "2021"
 
 [workspace.dependencies]
 lambdaworks-crypto = "0.7.0"
-lambdaworks-math = "0.7.0"
+lambdaworks-math = { version = "0.7.0", features = [
+    "lambdaworks-serde-string",
+    "lambdaworks-serde-binary",
+] }
 
 log = "*"
 env_logger = "*"
 hex = "*"
 rand = "0.8.5"
 rand_chacha = "0.3.1"
+serde = "*"
+serde_json = "*"
