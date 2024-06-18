@@ -1,18 +1,13 @@
 use lambdaworks_crypto::{
     fiat_shamir::default_transcript::DefaultTranscript,
-    hash::sha3::Sha3Hasher,
-    merkle_tree::backends::{
-        field_element::FieldElementBackend,
-        types::{Keccak256Backend, Sha2_256Backend},
-    },
+    merkle_tree::backends::types::{Keccak256Backend, Sha2_256Backend},
 };
 use lambdaworks_math::{
     field::{
         element::FieldElement,
         fields::montgomery_backed_prime_fields::{IsModulus, U64PrimeField},
-        traits::IsFFTField,
     },
-    unsigned_integer::element::{UnsignedInteger, U64},
+    unsigned_integer::element::U64,
 };
 
 #[derive(Clone, Debug, Hash, Copy)]
@@ -23,8 +18,10 @@ impl IsModulus<U64> for MontgomeryConfigStark101PrimeField {
 
 pub type Stark101PrimeField = U64PrimeField<MontgomeryConfigStark101PrimeField>;
 
+/// Backend for Merkle Tree using Sha256.
 pub type Stark101PrimeFieldBackend = Sha2_256Backend<Stark101PrimeField>;
 
+/// Transcript for Fiat-Shamir transform using Stark101PrimeField.
 pub type Stark101PrimeFieldTranscript = DefaultTranscript<Stark101PrimeField>;
 
 // impl IsFFTField for Stark101PrimeField {

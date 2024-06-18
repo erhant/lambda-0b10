@@ -21,5 +21,6 @@ lambdaworks-math = "0.7.0"
 
 log = "*"
 env_logger = "*"
+hex = "*"
 rand = "0.8.5"
 rand_chacha = "0.3.1"
