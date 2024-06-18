@@ -10,7 +10,8 @@
     "polynomials": "Include",
     "numbers": "Delta",
     "cryptosystems": "Secure",
-    "challenges": "Console"
+    "challenges": "Console",
+    "exercises": "Coverage"
   },
   // https://raw.githubusercontent.com/PKief/vscode-material-icon-theme/main/images/fileIcons.png
   "material-icon-theme.files.associations": {}

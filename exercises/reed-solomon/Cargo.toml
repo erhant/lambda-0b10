@@ -1,10 +1,11 @@
 [package]
-name = "rsa-cryptosystem"
+name = "reed-solomon"
 version.workspace = true
 edition.workspace = true
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-num-bigint = "0.4.5"
-num-traits = "0.2.19"
+lambdaworks-math.workspace = true
+lambdaworks-crypto.workspace = true
+rand.workspace = true

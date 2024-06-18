@@ -12,15 +12,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "algebra"
-version = "0.1.0"
-dependencies = [
- "lambdaworks-crypto 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "lambdaworks-math 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "rand",
-]
-
-[[package]]
 name = "anstream"
 version = "0.6.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -437,6 +428,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "reed-solomon"
+version = "0.1.0"
+dependencies = [
+ "lambdaworks-crypto 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "lambdaworks-math 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rand",
+]
+
+[[package]]
 name = "regex"
 version = "1.10.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -466,7 +466,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7a66a03ae7c801facd77a29370b4faec201768915ac14a721ba36f20bc9c209b"
 
 [[package]]
-name = "rsa-cryptosystem"
+name = "rsa"
 version = "0.1.0"
 dependencies = [
  "num-bigint",

@@ -3,11 +3,11 @@ resolver = "2"
 members = [
     "challenges/chal2",
     "challenges/interview",
-    "cryptosystems",
+    "exercises/rsa",
+    "exercises/reed-solomon",
     "snarks/babysnark",
     "snarks/stark101",
     "snarks/plonk",
-    "algebra",
 ]
 
 [workspace.package]
