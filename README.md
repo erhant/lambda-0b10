@@ -17,7 +17,7 @@ Other things included here:
 - [RSA](./exercises/rsa/): PoC implementation of RSA cryptosystem.
 - [Shamir's Secret Sharing](./exercises/shamir-secret-share/): a basic Shamir's Secret Sharing implementation.
 - [Vault of Loki](./exercises/vault-of-loki/README.md): KZG fake proof challenge by LambdaClass.
-- [BabySnark](./snarks/babysnark/README.md): Small example circuits using BabySnark.
+- [BabySnark](./snarks/babysnark/): Small example circuits using BabySnark.
 - [Stark101](./snarks/stark101/README.md): PoC implementation of Stark101 prover, based on its blog posts.
 - [Sum-Check](./exercises/sumcheck/): try doing a simple sum-check for 3 variables, **TODO**.
 
