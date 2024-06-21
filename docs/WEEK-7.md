@@ -34,19 +34,28 @@ Multi-linear extension is **unique**, just like the univariate interpolations!
 
 The set $S = \{0, 1\}^n$ is sometimes known as the **Boolean hypercube**.
 
-We can talk about Lagrange basis polynomials in the multivariate case as well. Consider $f(x) = v$. We can create a Lagrange basis that is 1 when $x = v$ and 0 otherwise:
+We can talk about Lagrange basis polynomials in the multivariate case as well. Consider $f(x) = v$. We can create a Lagrange basis that is 1 when $x = r$ and 0 otherwise:
 
 $$
 L_r(x) = \prod_{i=0}^{n-1} (x_ir_i + (1 - x_i)(1 - r_i))
 $$
 
-where $f(x) = v$ and $v_i$ are the bits from the binary decomposition of $v$.
-
-With many such basis functions, we can construct the MLE:
+where $r_i$ are the bits from the binary decomposition of $r$. The idea here is simple, the bits that we expect to be set or unset make up the terms where if $r_i$ is set we have $x_i$, otherwise we have $1 - x_i$. With many such basis functions, we can construct the MLE:
 
 $$
 \tilde{f}(x) = \sum_{v}^{2^n-1} f(v) \cdot L_v(x)
 $$
+
+> Consider the Lagrange basis for 3-bit $r$ inputs:
+>
+> - $L_0(x) = L_{000}(x_0, x_1, x_2) = (1-x_0)(1-x_1)(1-x_2)$
+> - $L_1(x) = L_{001}(x_0, x_1, x_2) = x_0(1-x_1)(1-x_2)$
+> - $L_2(x) = L_{010}(x_0, x_1, x_2) = (1-x_0)x_1(1-x_2)$
+> - $L_3(x) = L_{011}(x_0, x_1, x_2) = x_0x_1(1-x_2)$
+> - $L_4(x) = L_{100}(x_0, x_1, x_2) = (1-x_0)(1-x_1)x_2$
+> - $L_5(x) = L_{101}(x_0, x_1, x_2) = x_0(1-x_1)x_2$
+> - $L_6(x) = L_{110}(x_0, x_1, x_2) = (1-x_0)x_1x_2$
+> - $L_7(x) = L_{111}(x_0, x_1, x_2) = x_0x_1x_2$
 
 ### Evaluating at a Random Point
 
@@ -132,9 +141,12 @@ and if this is true, it **accepts**. This final evaluation over $g$ is the rando
 
 ## See also
 
-- <https://semiotic.ai/articles/sumcheck-tutorial/>
-- <https://publish.obsidian.md/matteo/3.+Permanent+notes/Sum-Check+Protocol>
-- <https://github.com/0xSage/thaler>
+- [Semiotic AI blog](https://semiotic.ai/articles/sumcheck-tutorial/)
+- [Matteo notes](https://publish.obsidian.md/matteo/3.+Permanent+notes/Sum-Check+Protocol)
+- [0xSage SumCheck implementation](https://github.com/0xSage/thaler)
+- [Punwai SumCheck implementation](https://github.com/punwai/sumcheck)
+- [Ingonyama SumCheck implementation](https://github.com/ingonyama-zk/super-sumcheck)
+- [Arkworks SumCheck implementation](https://github.com/arkworks-rs/sumcheck/blob/master/src/ml_sumcheck/mod.rs#L18)
 - [Proofs, Arguments, and Zero-Knowledge by Justin Thaler](https://people.cs.georgetown.edu/jthaler/ProofsArgsAndZK.pdf) Chapters 3 & 4
 
 # Binius & Brakedown
