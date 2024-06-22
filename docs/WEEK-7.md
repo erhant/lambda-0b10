@@ -141,7 +141,7 @@ and if this is true, it **accepts**. This final evaluation over $g$ is the rando
 
 ## See also
 
-- [Semiotic AI blog](https://semiotic.ai/articles/sumcheck-tutorial/)
+- [Semiotic AI blog post](https://semiotic.ai/articles/sumcheck-tutorial/)
 - [Matteo notes](https://publish.obsidian.md/matteo/3.+Permanent+notes/Sum-Check+Protocol)
 - [0xSage SumCheck implementation](https://github.com/0xSage/thaler)
 - [Punwai SumCheck implementation](https://github.com/punwai/sumcheck)

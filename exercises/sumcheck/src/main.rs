@@ -1,61 +1,92 @@
-use core::num;
 use std::env;
 
-use lambdaworks_math::{
-    field::{element::FieldElement, fields::u64_prime_field::U64PrimeField},
-    polynomial::{
-        dense_multilinear_poly::DenseMultilinearPolynomial,
-        sparse_multilinear_poly::SparseMultilinearPolynomial,
-    },
-};
+use lambdaworks_math::field::element::FieldElement;
+use lambdaworks_math::field::fields::u64_prime_field::U64PrimeField;
+use lambdaworks_math::polynomial::dense_multilinear_poly::DenseMultilinearPolynomial;
 use sumcheck::sumcheck::SumCheck;
+use sumcheck::utils::to_binary_felts;
 
-const ORDER: u64 = 131;
-type F = U64PrimeField<ORDER>;
+type F = U64PrimeField<17>;
 type FE = FieldElement<F>;
 
-// fn get_evals() -> (Vec<(usize, FE)>, usize) {
-//     /// A 3-variate polynomial over a given field.
-//     ///
-//     /// Equals `2x^3 + xy + yz`, as in the example given in the PAZK book by Thaler.
-//     fn evaluate<const N: usize>(xs: [usize; N]) -> FE {
-//         FE::from((2 * xs[0].pow(3) + xs[0] * xs[2] + xs[1] * xs[2]) as u64)
-//     }
+// A 3-variate poly x_1*x_2*x_3 + 2*x_2 + 3*x_1^2 + x_2^4*x_3 + 5*x_1*x_2 + 2*x_3
+fn g(xs: Vec<FE>) -> FE {
+    vec![
+        // x_1*x_2*x_3
+        xs[0].clone() * xs[1].clone() * xs[2].clone(),
+        // 2*x_2
+        FE::from(2) * xs[1].clone(),
+        // 3*x_1^2
+        FE::from(3) * xs[0].clone() * xs[0].clone(),
+        // x_2^4*x_3
+        xs[1].pow(4_u64) * xs[2].clone(),
+        // 5*x_1*x_2
+        FE::from(5) * xs[0].clone() * xs[1].clone(),
+        // 2*x_3
+        FE::from(2) * xs[2].clone(),
+    ]
+    .iter()
+    .fold(FE::zero(), |acc, y| acc + y)
+}
 
-//     const NUM_VARS: usize = 3;
+// MLE of the polynomial above, redundant terms written for clarity
+// I handwrite this to show in clear how MLE works
+fn g_mle(xs: Vec<FE>) -> FE {
+    #[inline(always)]
+    fn _1(x: &FE) -> FE {
+        x.clone()
+    }
+    #[inline(always)]
+    fn _0(x: &FE) -> FE {
+        FE::one() - x.clone()
+    }
 
-//     let evals = (0..(1 << NUM_VARS))
-//         .map(|x| {
-//             let xs = ((x >> 2) & 1, (x >> 1) & 1, x & 1);
-//             let y = evaluate(xs);
-//             log::debug!(
-//                 "{}: ({} {} {}) -> {}",
-//                 x,
-//                 xs.0,
-//                 xs.1,
-//                 xs.2,
-//                 y.representative()
-//             );
-
-//             (x, y)
-//         })
-//         .collect::<Vec<_>>();
-
-//     (evals, NUM_VARS)
-// }
+    vec![
+        FE::from(00) * _0(&xs[0]) * _0(&xs[1]) * _0(&xs[2]), // (000): -> 0
+        FE::from(02) * _0(&xs[0]) * _0(&xs[1]) * _1(&xs[2]), // (001): -> 2
+        FE::from(02) * _0(&xs[0]) * _1(&xs[1]) * _0(&xs[2]), // (010): -> 2
+        FE::from(05) * _0(&xs[0]) * _1(&xs[1]) * _1(&xs[2]), // (011): -> 5
+        FE::from(03) * _1(&xs[0]) * _0(&xs[1]) * _0(&xs[2]), // (100): -> 3
+        FE::from(05) * _1(&xs[0]) * _0(&xs[1]) * _1(&xs[2]), // (101): -> 5
+        FE::from(10) * _1(&xs[0]) * _1(&xs[1]) * _0(&xs[2]), // (110): -> 10
+        FE::from(14) * _1(&xs[0]) * _1(&xs[1]) * _1(&xs[2]), // (111): -> 14
+    ]
+    .iter()
+    .fold(FE::zero(), |acc, y| acc + y)
+}
 
 fn main() {
     env::set_var("RUST_LOG", "debug");
     env_logger::init();
 
-    // let (evals, num_vars) = vec![]; // get_evals();
-    // let sparse_poly = SparseMultilinearPolynomial::new(num_vars, evals.clone());
-    // assert_eq!(sparse_poly.num_vars(), 3);
+    const N: usize = 3; // number of variables
 
-    // let evals_y = evals.iter().map(|(_, y)| *y).collect();
-    // let dense_poly = DenseMultilinearPolynomial::new(evals_y);
-    // assert_eq!(dense_poly.len(), 1 << num_vars);
-    // assert_eq!(dense_poly.num_vars(), 3);
-    // let sumcheck = SumCheck::new(poly);
-    // sumcheck.round(evals.iter().map(|(_, y)| *y).collect());
+    // evaluate over boolean hypercube
+    let mut evals = vec![];
+    for i in 0..(1 << N) {
+        let xs = to_binary_felts(i, N);
+        let y = g(xs.clone());
+        assert_eq!(y, g_mle(xs.clone()), "g_mle and g differ");
+        log::debug!(
+            "{} ({}{}{}): -> {}",
+            i,
+            xs[0].representative(),
+            xs[1].representative(),
+            xs[2].representative(),
+            y.representative()
+        );
+        evals.push(y);
+    }
+
+    // create a dense multilienar poly from the evaluations
+    let poly = DenseMultilinearPolynomial::new(evals);
+    assert_eq!(poly.len(), 1 << N);
+    assert_eq!(poly.num_vars(), N);
+
+    // create sumcheck proof
+    let mut sumcheck = SumCheck::new(poly);
+    sumcheck.prove()
+
+    // verify proof
+    // TODO: !!!
 }

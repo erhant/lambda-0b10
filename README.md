@@ -13,13 +13,13 @@ This repository is an umbrella repository for my notes during [Sparkling Water B
 
 Other things included here:
 
-- [Interview](./exercises/interview/README.md): Bootcamp interview questions & answers.
-- [RSA](./exercises/rsa/): PoC implementation of RSA cryptosystem.
+- [Interview](./exercises/interview/README.md): bootcamp interview questions & answers.
+- [RSA](./exercises/rsa/): very basic implementation of RSA cryptosystem.
 - [Shamir's Secret Sharing](./exercises/shamir-secret-share/): a basic Shamir's Secret Sharing implementation.
 - [Vault of Loki](./exercises/vault-of-loki/README.md): KZG fake proof challenge by LambdaClass.
-- [BabySnark](./snarks/babysnark/): Small example circuits using BabySnark.
-- [Stark101](./snarks/stark101/README.md): PoC implementation of Stark101 prover, based on its blog posts.
-- [Sum-Check](./exercises/sumcheck/): try doing a simple sum-check for 3 variables, **TODO**.
+- [BabySnark](./snarks/babysnark/): small example circuits using BabySnark.
+- [Stark101](./snarks/stark101/README.md): the Stark101 prover, based on its blog posts.
+- [Sumcheck Protocol](./exercises/sumcheck/): an implementation of Sumcheck protocol for multilinear polynomials.
 
 You can run any of these via the Makefile, just see:
 
@@ -29,4 +29,5 @@ make rsa
 make shamir
 make vault-of-loki
 make stark101
+make sumcheck
 ```

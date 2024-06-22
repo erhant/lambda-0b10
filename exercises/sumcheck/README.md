@@ -45,7 +45,3 @@ g_n(r_n) = g(r_1, r_2, \ldots, r_n)
 $$
 
 If all checks pass, the verifier accepts the proof.
-
-## Implementation
-
-We begin by evaluating our function over the boolean hypercube. For 3 variables, that makes $2^3 = 8$ evaluations. The polynomial is represented using a `DensePolynomial` and we can take the sum over
