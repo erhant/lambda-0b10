@@ -87,9 +87,9 @@ fn main() {
     assert_eq!(poly.num_vars(), NUM_VARS);
 
     // create sumcheck proof
-    let mut sumcheck = SumCheck::new(poly);
+    let sumcheck = SumCheck::new(poly);
     let proof = sumcheck.prove();
 
     // verify proof
-    assert!(proof.verify(), "invalid proof");
+    proof.verify();
 }

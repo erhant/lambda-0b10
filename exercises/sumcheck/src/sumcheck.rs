@@ -1,15 +1,13 @@
 #![allow(non_snake_case)]
 
-use lambdaworks_crypto::fiat_shamir::{
-    default_transcript::DefaultTranscript, is_transcript::IsTranscript,
-};
+use lambdaworks_crypto::fiat_shamir::is_transcript::IsTranscript;
 use lambdaworks_math::{
     field::{element::FieldElement as FE, traits::IsField},
     polynomial::{dense_multilinear_poly::DenseMultilinearPolynomial, Polynomial},
     traits::ByteConversion,
 };
 
-use crate::utils::to_binary_felts;
+use crate::utils::{create_transcript, to_binary_felts};
 
 /// A proof for the SumCheck protocol.
 pub struct SumCheckProof<F: IsField>
@@ -26,16 +24,8 @@ where
     <F as IsField>::BaseType: Send + Sync,
     FE<F>: ByteConversion,
 {
-    pub fn verify(&self) -> bool {
-        // use the polynomial evaluations to initialize the transcript
-        let init_bytes = self
-            .g
-            .evals()
-            .iter()
-            .flat_map(|y| y.to_bytes_be())
-            .collect::<Vec<_>>();
-        let mut transcript = DefaultTranscript::new(&init_bytes);
-
+    pub fn verify(&self) {
+        let mut transcript = create_transcript(&self.g);
         let (one, zero) = (FE::<F>::one(), FE::<F>::zero());
 
         // first check the sum itself
@@ -59,7 +49,6 @@ where
             );
 
             let r = transcript.sample_field_element();
-            log::debug!("r_{} = {:?}", i, r);
             assert_eq!(
                 self.polys[i - 1].evaluate(&r),
                 self.polys[i].evaluate(&zero) + self.polys[i].evaluate(&one),
@@ -68,7 +57,7 @@ where
         }
 
         // check final round
-        log::debug!("Verifying final round {}", self.polys.len());
+        log::info!("Verifying final round {}", self.polys.len());
         let r = transcript.sample_field_element();
         rs.push(r.clone());
         assert_eq!(
@@ -76,7 +65,7 @@ where
             self.g.evaluate(rs).unwrap()
         );
 
-        true
+        log::debug!("Verification complete.");
     }
 }
 
@@ -90,8 +79,6 @@ where
     g: DenseMultilinearPolynomial<F>,
     /// Sum of the polynomial evaluations.
     sum: FE<F>,
-    /// Transcript for Fiat-Shamir transform of the verifier.
-    pub transcript: DefaultTranscript<F>,
 }
 
 impl<F: IsField> SumCheck<F>
@@ -100,30 +87,19 @@ where
     FE<F>: ByteConversion,
 {
     pub fn new(g: DenseMultilinearPolynomial<F>) -> Self {
-        // sum-reduce the polynomial over all its evaluations
-        let sum = g.evals().iter().fold(FE::<F>::zero(), |acc, y| acc + y);
-
         log::info!(
             "Sumcheck starting for {}-variate multilinear polynomial",
             g.num_vars()
         );
 
-        // use the polynomial evaluations to initialize the transcript
-        let init_bytes = g
-            .evals()
-            .iter()
-            .flat_map(|y| y.to_bytes_be())
-            .collect::<Vec<_>>();
+        let sum = g.evals().iter().fold(FE::<F>::zero(), |acc, y| acc + y);
 
-        Self {
-            g,
-            sum,
-            transcript: DefaultTranscript::new(&init_bytes),
-        }
+        Self { g, sum }
     }
 
     // Run the initialization round and return the claimed sum check value
-    pub fn prove(&mut self) -> SumCheckProof<F> {
+    pub fn prove(&self) -> SumCheckProof<F> {
+        let mut transcript = create_transcript(&self.g);
         let mut round = 1usize;
         log::info!("Round: {}", round);
 
@@ -153,8 +129,7 @@ where
             assert!(last_poly.degree() <= 1, "degree should be at most 1");
 
             // verifier adds a random query
-            let r = self.transcript.sample_field_element();
-            log::debug!("r_{} = {:?}", round, r);
+            let r = transcript.sample_field_element();
 
             log::debug!("Evaluating {} at r_{}", last_poly_name, round);
             check = last_poly.evaluate(&r); // check is updated to g_{j-1}(r_{j-1})
@@ -261,10 +236,10 @@ mod tests {
         let poly = DenseMultilinearPolynomial::new(evals);
         assert_eq!(poly.num_vars(), n);
 
-        let mut sumcheck = SumCheck::new(poly);
+        let sumcheck = SumCheck::new(poly);
         let proof = sumcheck.prove();
 
-        assert!(proof.verify(), "invalid proof");
+        proof.verify();
     }
 
     #[test]

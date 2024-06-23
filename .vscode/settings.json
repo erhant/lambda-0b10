@@ -12,7 +12,15 @@
     "cryptosystems": "Secure",
     "challenges": "Console",
     "exercises": "Coverage",
-    "snarks": "Moon"
+    "snarks": "Moon",
+    "rsa": "Animation",
+    "shamir-secret-share": "Shared",
+    "sumcheck": "Import",
+    "vault-of-loki": "Private",
+    "interview": "Custom",
+    "babysnark": "Moon",
+    "plonk": "Stack",
+    "stark101": "Template"
   },
   // https://raw.githubusercontent.com/PKief/vscode-material-icon-theme/main/images/fileIcons.png
   "material-icon-theme.files.associations": {}
