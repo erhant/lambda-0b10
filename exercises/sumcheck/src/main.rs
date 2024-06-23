@@ -17,7 +17,7 @@ fn g(xs: Vec<FE>) -> FE {
         // 2*x_2
         FE::from(2) * xs[1].clone(),
         // 3*x_1^2
-        FE::from(3) * xs[0].clone() * xs[0].clone(),
+        FE::from(3) * xs[0].pow(2u64),
         // x_2^4*x_3
         xs[1].pow(4_u64) * xs[2].clone(),
         // 5*x_1*x_2
@@ -42,14 +42,14 @@ fn g_mle(xs: Vec<FE>) -> FE {
     }
 
     vec![
-        FE::from(00) * _0(&xs[0]) * _0(&xs[1]) * _0(&xs[2]), // (000): -> 0
-        FE::from(02) * _0(&xs[0]) * _0(&xs[1]) * _1(&xs[2]), // (001): -> 2
-        FE::from(02) * _0(&xs[0]) * _1(&xs[1]) * _0(&xs[2]), // (010): -> 2
-        FE::from(05) * _0(&xs[0]) * _1(&xs[1]) * _1(&xs[2]), // (011): -> 5
-        FE::from(03) * _1(&xs[0]) * _0(&xs[1]) * _0(&xs[2]), // (100): -> 3
-        FE::from(05) * _1(&xs[0]) * _0(&xs[1]) * _1(&xs[2]), // (101): -> 5
-        FE::from(10) * _1(&xs[0]) * _1(&xs[1]) * _0(&xs[2]), // (110): -> 10
-        FE::from(14) * _1(&xs[0]) * _1(&xs[1]) * _1(&xs[2]), // (111): -> 14
+        _0(&xs[0]) * _0(&xs[1]) * _0(&xs[2]) * FE::from(00), // (000): -> 0
+        _0(&xs[0]) * _0(&xs[1]) * _1(&xs[2]) * FE::from(02), // (001): -> 2
+        _0(&xs[0]) * _1(&xs[1]) * _0(&xs[2]) * FE::from(02), // (010): -> 2
+        _0(&xs[0]) * _1(&xs[1]) * _1(&xs[2]) * FE::from(05), // (011): -> 5
+        _1(&xs[0]) * _0(&xs[1]) * _0(&xs[2]) * FE::from(03), // (100): -> 3
+        _1(&xs[0]) * _0(&xs[1]) * _1(&xs[2]) * FE::from(05), // (101): -> 5
+        _1(&xs[0]) * _1(&xs[1]) * _0(&xs[2]) * FE::from(10), // (110): -> 10
+        _1(&xs[0]) * _1(&xs[1]) * _1(&xs[2]) * FE::from(14), // (111): -> 14
     ]
     .iter()
     .fold(FE::zero(), |acc, y| acc + y)
@@ -59,34 +59,37 @@ fn main() {
     env::set_var("RUST_LOG", "debug");
     env_logger::init();
 
-    const N: usize = 3; // number of variables
+    const NUM_VARS: usize = 3; // number of variables
+    const NUM_EVALS: usize = 1 << NUM_VARS; // number of evaluations
 
-    // evaluate over boolean hypercube
-    let mut evals = vec![];
-    for i in 0..(1 << N) {
-        let xs = to_binary_felts(i, N);
-        let y = g(xs.clone());
-        assert_eq!(y, g_mle(xs.clone()), "g_mle and g differ");
-        log::debug!(
-            "{} ({}{}{}): -> {}",
-            i,
-            xs[0].representative(),
-            xs[1].representative(),
-            xs[2].representative(),
-            y.representative()
-        );
-        evals.push(y);
-    }
+    log::info!("Evaluating g over the boolean hypercube");
+    let evals = (0..NUM_EVALS)
+        .map(|i| {
+            let xs = to_binary_felts(i, NUM_VARS);
+            let y = g(xs.clone());
+            assert_eq!(y, g_mle(xs.clone()), "g_mle and g differ");
+            log::debug!(
+                "g({}) = g({},{},{}) = {}",
+                i,
+                xs[0].representative(),
+                xs[1].representative(),
+                xs[2].representative(),
+                y.representative()
+            );
+
+            y
+        })
+        .collect();
 
     // create a dense multilienar poly from the evaluations
     let poly = DenseMultilinearPolynomial::new(evals);
-    assert_eq!(poly.len(), 1 << N);
-    assert_eq!(poly.num_vars(), N);
+    assert_eq!(poly.len(), NUM_EVALS);
+    assert_eq!(poly.num_vars(), NUM_VARS);
 
     // create sumcheck proof
     let mut sumcheck = SumCheck::new(poly);
-    sumcheck.prove()
+    let proof = sumcheck.prove();
 
     // verify proof
-    // TODO: !!!
+    assert!(proof.verify(), "invalid proof");
 }
