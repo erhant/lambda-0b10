@@ -4,6 +4,7 @@ members = [
     "exercises/vault-of-loki",
     "exercises/interview",
     "exercises/rsa",
+    "exercises/ntt",
     "exercises/shamir-secret-share",
     "exercises/sumcheck",
     "snarks/babysnark",

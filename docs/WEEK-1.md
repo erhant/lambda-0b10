@@ -350,3 +350,8 @@ This tell us that $g'$ is a generator of the subgroup of size $2^{32}$, and we c
 ### Implementation
 
 LambdaWorks have the implementations at <https://github.com/lambdaclass/lambdaworks/tree/main/math/src/fft>.
+
+### See Also:
+
+- [Cooley-Tukey FFT Algorithm](https://en.wikipedia.org/wiki/Cooley%E2%80%93Tukey_FFT_algorithm)
+- [Beginner's Guide to NTT](https://eprint.iacr.org/2024/585.pdf)

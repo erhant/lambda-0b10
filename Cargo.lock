@@ -191,6 +191,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "fft"
+version = "0.1.0"
+dependencies = [
+ "lambdaworks-math 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "generic-array"
 version = "0.14.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"

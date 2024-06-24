@@ -1,5 +1,7 @@
 # [Challenge 2: Vault of Loki](https://github.com/lambdaclass/lambdaworks/tree/main/exercises/challenge_2)
 
+The challenge is given as below:
+
 > # Breaking into the vault of Loki
 >
 > After years of careful investigation, you have reached the gate to Loki's vault in the icy mountains of Norway, where it is said that many great treasures and powerful weapons are hidden. The gate seems unbreakable, but you spot some ancient machinery with inscriptions in old runes. After some help from ChatGPT, you are able to translate the symbols and the whole message into modern English, and it reads:
