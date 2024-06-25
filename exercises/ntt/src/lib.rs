@@ -1,1 +1,2 @@
-pub mod ntt;
+mod ntt;
+pub use ntt::NTT;

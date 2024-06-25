@@ -191,13 +191,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "fft"
-version = "0.1.0"
-dependencies = [
- "lambdaworks-math 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
 name = "generic-array"
 version = "0.14.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -313,6 +306,15 @@ name = "memchr"
 version = "2.7.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "78ca9ab1a0babb1e7d5695e3530886289c18cf2f87ec19a575a0abdce112e3a3"
+
+[[package]]
+name = "ntt"
+version = "0.1.0"
+dependencies = [
+ "env_logger",
+ "lambdaworks-math 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "log",
+]
 
 [[package]]
 name = "num-bigint"

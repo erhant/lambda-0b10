@@ -51,13 +51,21 @@ What we ended up with is two smaller NTTs of size $n/2$ each! This is the basis 
 >
 > If $\omega$ is a primitive $n$-th root of unity, then $\omega^2$ is a primitive $n/2$-th root of unity. So this substitution does not break that property.
 
-TODO: describe properties of primitive roots for the eq below
+Primitive $n$-th roots of unity have two properties that are useful for the NTT:
+
+- **Periodicity**: $\omega^{j + n} = \omega^j$ for all $j$. It is quite evident why this is:
+
+$$
+\omega^{j + n} = \omega^j \cdot \omega^n = \omega^j \cdot 1 = \omega^j
+$$
+
+- **Symmetricity**: $\omega^{j + n/2} = -\omega^j$ for all $j$. (TODO: explain why)
 
 We end up with the following "butterfly" operation:
 
 $$
 \begin{align*}
-A_j &= E_j + \omega^j O_j\\
+A_j       &= E_j + \omega^j O_j \\
 A_{j+n/2} &= E_j - \omega^j O_j
 \end{align*}
 $$

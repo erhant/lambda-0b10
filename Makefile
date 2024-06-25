@@ -6,6 +6,10 @@ stark101:
 sumcheck: 
 		@cargo run --release --bin sumcheck
 
+.PHONY: ntt
+ntt: 
+		@cargo run --release --bin ntt
+
 .PHONY: babysnark
 babysnark: 
 		@cargo test -p babysnark
