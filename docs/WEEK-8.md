@@ -1,6 +1,6 @@
 > # Week 8
 >
-> [Plookup](https://eprint.iacr.org/2020/315.pdf) & zkVMs.
+> Plookup & zkVMs.
 
 # Lookup Argument
 
@@ -178,7 +178,145 @@ Finally, show that:
 
 > At this point there were too many equations to write down, so we end here...
 
-## See Also
+### See Also
 
 - [Plookup](https://eprint.iacr.org/2020/315.pdf)
 - [PlonKup](https://eprint.iacr.org/2022/086)
+
+# Zero-Knowledge Virtual Machines (zkVM)
+
+A zero-knowledge virtual machine is a virtual machine that can execute programs such that a zero-knowledge proof can be created about their execution. The idea is to have a virtual machine that can execute programs, but the verifier does not know what the program is doing. The verifier only knows that the program has been executed correctly.
+
+## In the Wild
+
+There are quite a variety of zkVMs with different designs:
+
+- **Cairo**: it was the first VM among all. It is not as fancy as the new ones, but it opened the path for the rest.
+- **RISC0**: it is a RISC-V based VM, able to prove Rust code
+- **Valida/SP1**: ...
+- **Miden**: has its own assembly instruction set.
+- **Nexus**: ...
+- **Ola**: ...
+- **Jolt**: ...
+
+### Architecture
+
+There are two main **architectures** in any kind of VM:
+
+- **Von-Neumann**: The operations and instruction are together in the same piece of memory
+- **Harvard**: The operations and instructions are separated
+
+### Proof Systems
+
+The most important thing about a zkVM is the proof system that it uses. We have several options:
+
+- **STARKs** (Cairo, Risc0, Miden)
+- **Plonky3** (Valida/SP1)
+- **Plonky2** + **STARKY** (Ola)
+- **Lasso** (Jolt)
+- **Nexus** (Elliptic Curve snarks)
+
+The choice of proof system will affect three main things:
+
+- **Proof Size**: we want small proofs
+- **Speed**: we want the VM to be fast
+- **Recursion**: we want recursion to be easy
+
+In general, most VMs seem to prefer STARKs because it easier to do recursion & you can choose your field; its also post-quantum secure! The large proof size is a problem there, but you can do a final proving step with a much smaller (constant-size) proof to solve that.
+
+### Instruction Set
+
+Many VMs have a _proof compression_ step that generates one final proof from a multiple of them.
+
+We should also think of the Instruction Set Architecture (ISA) of the VM. The ISA is the set of instructions that the VM can execute. The number of instructions is important, as well as the complexity of the instructions.
+
+- **RISC-V** (RISC0)
+- **Cairo** (Cairo)
+- **Miden Assembly** (Miden)
+- **LLVM** + own ISA (Valida)
+
+### Modularity
+
+A VM can be Modular or Monolithic:
+
+- A modular zkVM is one that can be split into different parts, and each part can be replaced by another one; it is easier to extend such a zkVM with new operations. The communication between the different modules of the VM is often done via lookup arguments.
+
+- A monolithic zkVM however, is one that is a single piece of code.
+
+Some modularity examples:
+
+- In Valida/SP1, we have a specialized Arithmetic Logic Unit (ALU) "copressor" that does specialized arithmetic operations. This is separated from the main CPU of the zkVM, all you have to do is communicate between them.
+- In Miden, we have "chiplets".
+- In Cairo we have "built-ins".
+
+When we use more modules, our proof size goes up. This is partly due to "communication" proofs.
+
+### Finite Field
+
+Another important aspect is the field used within the zkVM.
+
+- Stark252 (Cairo)
+- Mini-Goldilocks (Miden, Ola)
+- BabyBear (RISC0, SP1, Lita)
+- BN254 base & scalar fields (Nexus)
+
+> [!WARN]
+>
+> If we are using elliptic curves, we are not as free as we would be in STARK when it comes to picking our field.
+
+Mersenne31 or the binary fields (e.g. as used with Binius) are not used yet, but it would be nice to see them in action sometime.
+
+> Does using a small field incur any security costs? Well, not really because the sampling is done from an extension field, which is much larger even if we are working with a small field.
+
+### Recursion
+
+It is important if the VM has recursion or not.
+
+- If you don't have recursion, the size of the things that you can prove becomes **bounded**.
+- If you have recursion, you can prove things of arbitrary size.
+
+For example in StarkNet, instead of proving a whole block, you can prove each transaction separately and then aggregate the proofs.
+
+With the ability to do recursion, we can talk about **continutions**. If you want to prove a very large program, you can run up to a certain point, generate the proof, and then move on to the next part of the program and so on.
+
+- One can reduce a list of proofs in a binary-tree fashion, reducing two-to-one until we get to the root.
+
+- Or we can do "rollup continuations" where we prove each segment along with a proof that the previous segment was correct.
+
+> **Final Proofs**: To make it easy to verify proofs in resource-constrained systems, one can choose to do a final proof using a proof system that is known to have a very efficient verifier. For example, a Groth16 proof to show that a STARK proof is valid.
+
+### Folding Schemes / Proof-Carrying Data
+
+If we are using R1CS (e.g. Nexus), we have some nice folding schemes (Nova, SuperNova, HyperNove) that we can use to "fold" multiple instances into one. Recall that R1CS looked like this:
+
+$$
+(Az) \cdot (Bz) = (Cz)
+$$
+
+The question is, if I had $z_1$ and $z_2$ can I combine them to produce $z'$ such that if I verify the R1CS with $z'$ it is the same as verifying the R1CS with $z_1$ and $z_2$ separately? The answer is: **yes**, you can. However, you need to do some modifications to R1CS.
+
+Firstly, if the systems are linear, you can do a linear combination to compute $z' = z_1 + r \cdot z_2$. If the systems are not linear, this will fail though. An idea for this was to relax R1CS a bit:
+
+$$
+(Az) \cdot (Bz) = u \cdot (Cz) + E
+$$
+
+by adding "slack terms" $u$ and $E$ that account for the error. This is the idea behind **Nova** folding scheme. It is based on "Incrementially Verifiable Computation" (IVC). Instead of compressing all proofs into one, here we compress the "executions of the VM". The only proof that is generated is from the end result alone.
+
+This is also the idea behind Mina Protocol, where the blockchain is compressed into a single proof. Their construction in based on Pickles (whic is based on Kimchi) and these make use of the Pasta (Pallas + Vesta) pair of elliptic curves. In such a pair of curves, the base field of one is the scalar field of the other and vice-versa.
+
+### Hash Functions
+
+The choice of hash function is rather important in a VM, as it is used in many places. Some choices:
+
+- Pedersen
+- Poseidon
+- Monolotih
+- Rescue Prime
+- BLAKE
+- KECCAK
+
+## See also
+
+- Miden docs are nice
+- CairoVM paper is nice
