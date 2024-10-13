@@ -9,7 +9,7 @@ members = [
     "exercises/sumcheck",
     "snarks/babysnark",
     "snarks/stark101",
-    "snarks/plonk",
+    # "snarks/plonk", # todo hopefully
 ]
 
 [workspace.package]
@@ -18,8 +18,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [workspace.dependencies]
-lambdaworks-crypto = "0.7.0"
-lambdaworks-math = { version = "0.7.0", features = [
+lambdaworks-crypto = "0.9.0"
+lambdaworks-math = { version = "0.9.0", features = [
     "lambdaworks-serde-string",
     "lambdaworks-serde-binary",
 ] }

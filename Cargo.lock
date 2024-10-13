@@ -71,8 +71,8 @@ name = "baby-snark"
 version = "0.7.0"
 source = "git+https://github.com/lambdaclass/lambdaworks.git?branch=main#e465d7c791dce405c0c630f6afd44b12f277ab0a"
 dependencies = [
- "lambdaworks-crypto 0.7.0 (git+https://github.com/lambdaclass/lambdaworks.git?branch=main)",
- "lambdaworks-math 0.7.0 (git+https://github.com/lambdaclass/lambdaworks.git?branch=main)",
+ "lambdaworks-crypto 0.7.0",
+ "lambdaworks-math 0.7.0",
  "rand",
  "rand_chacha",
 ]
@@ -82,8 +82,8 @@ name = "babysnark"
 version = "0.1.0"
 dependencies = [
  "baby-snark",
- "lambdaworks-crypto 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "lambdaworks-math 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "lambdaworks-crypto 0.9.0",
+ "lambdaworks-math 0.9.0",
 ]
 
 [[package]]
@@ -248,7 +248,7 @@ checksum = "9a3a5bfb195931eeb336b2a7b4d761daec841b97f947d34394601737a7bba5e4"
 name = "interview"
 version = "0.1.0"
 dependencies = [
- "lambdaworks-math 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "lambdaworks-math 0.9.0",
 ]
 
 [[package]]
@@ -275,21 +275,21 @@ dependencies = [
 [[package]]
 name = "lambdaworks-crypto"
 version = "0.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7fb5d4f22241504f7c7b8d2c3a7d7835d7c07117f10bff2a7d96a9ef6ef217c3"
+source = "git+https://github.com/lambdaclass/lambdaworks.git?branch=main#e465d7c791dce405c0c630f6afd44b12f277ab0a"
 dependencies = [
- "lambdaworks-math 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde",
+ "lambdaworks-math 0.7.0",
  "sha2",
  "sha3",
 ]
 
 [[package]]
 name = "lambdaworks-crypto"
-version = "0.7.0"
-source = "git+https://github.com/lambdaclass/lambdaworks.git?branch=main#e465d7c791dce405c0c630f6afd44b12f277ab0a"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "719a902cc588fd601d2f9530e3de96def04d335297c3527a8cded239d4fa4c65"
 dependencies = [
- "lambdaworks-math 0.7.0 (git+https://github.com/lambdaclass/lambdaworks.git?branch=main)",
+ "lambdaworks-math 0.9.0",
+ "serde",
  "sha2",
  "sha3",
 ]
@@ -297,18 +297,18 @@ dependencies = [
 [[package]]
 name = "lambdaworks-math"
 version = "0.7.0"
+source = "git+https://github.com/lambdaclass/lambdaworks.git?branch=main#e465d7c791dce405c0c630f6afd44b12f277ab0a"
+
+[[package]]
+name = "lambdaworks-math"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "358e172628e713b80a530a59654154bfc45783a6ed70ea284839800cebdf8f97"
+checksum = "030a60407d8b7bfef27f591acd5c570a7729d81f99531e992f6d61189b89e72d"
 dependencies = [
  "rayon",
  "serde",
  "serde_json",
 ]
-
-[[package]]
-name = "lambdaworks-math"
-version = "0.7.0"
-source = "git+https://github.com/lambdaclass/lambdaworks.git?branch=main#e465d7c791dce405c0c630f6afd44b12f277ab0a"
 
 [[package]]
 name = "libc"
@@ -333,7 +333,7 @@ name = "ntt"
 version = "0.1.0"
 dependencies = [
  "env_logger",
- "lambdaworks-math 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "lambdaworks-math 0.9.0",
  "log",
 ]
 
@@ -363,14 +363,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "071dfc062690e90b734c0b2273ce72ad0ffa95f0c74596bc250dcfd960262841"
 dependencies = [
  "autocfg",
-]
-
-[[package]]
-name = "plonk"
-version = "0.1.0"
-dependencies = [
- "lambdaworks-crypto 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "lambdaworks-math 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -546,8 +538,8 @@ dependencies = [
 name = "shamir-secret-share"
 version = "0.1.0"
 dependencies = [
- "lambdaworks-crypto 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "lambdaworks-math 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "lambdaworks-crypto 0.9.0",
+ "lambdaworks-math 0.9.0",
  "rand",
 ]
 
@@ -557,8 +549,8 @@ version = "0.1.0"
 dependencies = [
  "env_logger",
  "hex",
- "lambdaworks-crypto 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "lambdaworks-math 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "lambdaworks-crypto 0.9.0",
+ "lambdaworks-math 0.9.0",
  "log",
  "rand",
  "serde",
@@ -571,8 +563,8 @@ version = "0.1.0"
 dependencies = [
  "csv",
  "env_logger",
- "lambdaworks-crypto 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "lambdaworks-math 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "lambdaworks-crypto 0.9.0",
+ "lambdaworks-math 0.9.0",
  "log",
  "rand",
 ]
@@ -610,8 +602,8 @@ checksum = "06abde3611657adf66d383f00b093d7faecc7fa57071cce2578660c9f1010821"
 name = "vault-of-loki"
 version = "0.1.0"
 dependencies = [
- "lambdaworks-crypto 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "lambdaworks-math 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "lambdaworks-crypto 0.9.0",
+ "lambdaworks-math 0.9.0",
  "rand",
 ]
 
